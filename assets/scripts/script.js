@@ -13,8 +13,8 @@ const worldMap = new WorldMap();
 const tileMap = new Image();
 tileMap.src = worldMap.src;
 
-const startX = worldMap.map_cols * worldMap.tileset_scaled_size / 2;
-const startY = worldMap.map_rows * worldMap.tileset_scaled_size / 2;
+const startX = worldMap.map_cols * worldMap.tileset_scaled_size / 3;
+const startY = worldMap.map_rows * worldMap.tileset_scaled_size / 3;
 const player = new PlayerObject(startX, startY, 2, worldMap.tileset_scaled_size / 2);
 
 

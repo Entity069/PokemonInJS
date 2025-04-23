@@ -8,25 +8,22 @@ export class PlayerObject {
     this.size = size;
     this.controls = new Controls();
     
-    // Animation properties
     this.spriteImage = new Image();
     this.spriteImage.src = './assets/textures/player.png';
-    this.frameWidth = 16;
-    this.frameHeight = 16;
-    this.frameCount = 4;
-    this.currentFrame = 0;
+    this.frameWidth = 18;
+    this.frameHeight = 21;
+    this.frameCount = 3;
+    this.currentFrame = 1; 
     this.animationSpeed = 10;
     this.animationCounter = 0;
     this.direction = 'down';
     this.isMoving = false;
     
-
-    // todo. idk how to animate but either different images or single sprite shit
     this.directions = {
       down: 0,
-      left: 1,
-      right: 2,
-      up: 3
+      up:   1,
+      left: 2,
+      right:3
     };
   }
 
@@ -65,7 +62,8 @@ export class PlayerObject {
         this.animationCounter = 0;
       }
     } else {
-      this.currentFrame = 0;
+      this.currentFrame = 1;
+      this.animationCounter = 0;
     }
   }
 
@@ -73,26 +71,25 @@ export class PlayerObject {
     if (!this.spriteImage.complete) {
       ctx.fillStyle = '#0f0';
       ctx.fillRect(
-        this.x - camera.x - this.size / 2,
-        this.y - camera.y - this.size / 2,
+        this.x - camera.x - this.size/2,
+        this.y - camera.y - this.size/2,
         this.size,
         this.size
       );
       return;
     }
     
-    const directionRow = this.directions[this.direction];
-    
+    const row = this.directions[this.direction];
     ctx.drawImage(
       this.spriteImage,
       this.currentFrame * this.frameWidth,
-      directionRow * this.frameHeight,
+      row * this.frameHeight,
       this.frameWidth,
       this.frameHeight,
-      this.x - camera.x - this.size / 2,
-      this.y - camera.y - this.size / 2,
-      this.size,
-      this.size
+      this.x - camera.x - this.size/2,
+      this.y - camera.y - this.size/2,
+      this.size * 3,
+      this.size * 3
     );
   }
 }
