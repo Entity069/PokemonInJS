@@ -9,8 +9,8 @@ export class PlayerObject {
     this.controls = new Controls();
     
     this.spriteImage = new Image();
-    this.spriteImage.src = './assets/textures/player.png';
-    this.frameWidth = 18;
+    this.spriteImage.src = './assets/textures/player-2.png';
+    this.frameWidth = 16;
     this.frameHeight = 21;
     this.frameCount = 3;
     this.currentFrame = 1; 
@@ -51,7 +51,7 @@ export class PlayerObject {
       this.direction = 'right';
       this.isMoving = true;
     }
-
+    
     this.x += dx;
     this.y += dy;
     

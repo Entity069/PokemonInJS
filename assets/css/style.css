@@ -10,4 +10,14 @@ canvas {
   height: 100%;
   background: skyblue;
   display: block;
-} 
+}
+
+#gameCanvas {
+  position: absolute;
+  z-index: 0;
+}
+
+#battleCanvas {
+  position: absolute;
+  z-index: 1;
+}
