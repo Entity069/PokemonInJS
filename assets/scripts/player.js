@@ -1,7 +1,7 @@
 import { Controls } from './controls.js';
 
 export class PlayerObject {
-  constructor(x = 0, y = 0, speed = 2, size = 24) {
+  constructor(x = 0, y = 0, speed = 1.5, size = 16) {
     this.x = x;
     this.y = y;
     this.speed = speed;
