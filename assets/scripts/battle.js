@@ -1,6 +1,9 @@
 import { Pokemon } from "./pokemon.js";
 import { Controls } from "./controls.js";
 
+const pokemonFont = new FontFace('Pokemon Fire Red', 'url("./assets/fonts/poke.ttf")');
+
+
 export class Battle {
     constructor(playerPokemon, enemyPokemon, ctx) {
         this.ctx = ctx;

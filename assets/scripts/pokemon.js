@@ -13,28 +13,30 @@ export class Pokemon {
     }
     // 1 request is better than 3
     async setDetails() {
-        return fetch(POKEMON_API_URL + this.name)
+        fetch(POKEMON_API_URL + this.name)
         .then(response => response.json())
         .then(data => {
-            this.spriteImageFront.src = data.sprites.front_default;
-            this.spriteImageBack.src = data.sprites.back_default;
-            // console.log(data.sprites.front_default);
-            // console.log(data.sprites.back_default);
 
             if (data.sprites.front_default === null) {
+                console.log("front is nay!")
                 this.spriteImageFront.src = "./assets/textures/fallback_front.png";
+            } else {
+                this.spriteImageFront.src = data.sprites.front_default;
             }
 
             if (data.sprites.back_default === null) {
+                console.log("back is nay!")
                 this.spriteImageBack.src = "./assets/textures/fallback_back.png";
+            } else {
+                this.spriteImageBack.src = data.sprites.back_default;
             }
+
             this.cry.src = data.cries.latest;
             this.moves = data.moves.slice(0, 4);
             // console.log(`Moves for ${this.name}:`, this.moves);
         })
         .catch(error => {
             console.error('error set:', error);
-            return this;
         });
         
     }
