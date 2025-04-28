@@ -16,10 +16,14 @@ export class Battle {
         this.textBox.src = "./assets/textures/menu-textbox.png";
 
         this.attackOptions = new Image();
-        this.attackOptions.src = "./assets/textures/menu-attack-options-2.png";
+        this.attackOptions.src = "./assets/textures/menu-attack-options.png";
+
+        this.arrow = new Image();
+        this.arrow.src = "./assets/textures/menu-arrow.png";
 
         this.playerPokemon = playerPokemon;
         this.enemyPokemon = enemyPokemon;
+
         this.controls = new Controls();
         this.battleStates = {
             INTRODUCTION: 0,
@@ -32,16 +36,41 @@ export class Battle {
         };
         this.currentState = this.battleStates.INTRODUCTION;
         this.currentMenu = 'main';
-        this.menuOptions = ['FIGHT', 'BAG', 'POKéMON', 'RUN'];
-        this.selectedOption = 0;
+        this.menuOptions = ['FIGHT', 'RUN'];
+        this.selectedOption = 0; // 0 = FIGHT, 1 = RUN
         this.battleText = [];
         this.isAnimating = false;
 
         this.enemyPosition = { x: 1000, y: 200 };
         this.playerPosition = { x: 400, y: 600 };
-        this.HPBarWidth = 200;
+
+        this.arrowPositions = [
+            { x: 510, y: 732 }, // fight
+            { x: 752, y: 732 }  // run
+        ];
+
+        this.lastInputState = {
+            right: false,
+            left: false
+        };
 
         this.initializePokemon();
+
+        this.imagesLoaded = {
+            background: false,
+            playerPokemonHpBar: false,
+            enemyPokemonHpBar: false,
+            textBox: false,
+            attackOptions: false,
+            arrow: false
+        };
+
+        this.background.onload = () => { this.imagesLoaded.background = true; };
+        this.playerPokemonHpBar.onload = () => { this.imagesLoaded.playerPokemonHpBar = true; };
+        this.enemyPokemonHpBar.onload = () => { this.imagesLoaded.enemyPokemonHpBar = true; };
+        this.textBox.onload = () => { this.imagesLoaded.textBox = true; };
+        this.attackOptions.onload = () => { this.imagesLoaded.attackOptions = true; };
+        this.arrow.onload = () => { this.imagesLoaded.arrow = true; };
     }
 
     initializePokemon() {
@@ -59,19 +88,19 @@ export class Battle {
                 this.battleText.push(`Go! ${this.playerPokemon.name}!`);
                 this.currentState = this.battleStates.PLAYER_CHOICE;
                 break;
-                
+
             case this.battleStates.PLAYER_CHOICE:
                 this.handleMenuInput();
                 break;
-                
+
             case this.battleStates.ENEMY_CHOICE:
                 this.enemyAttack();
                 break;
-                
+
             case this.battleStates.RESOLVE_TURNS:
                 this.resolveTurn();
                 break;
-                
+
             case this.battleStates.VICTORY:
             case this.battleStates.DEFEAT:
             case this.battleStates.RUN:
@@ -79,92 +108,99 @@ export class Battle {
         }
     }
 
+    handleMenuInput() {
+        if ((this.controls.keys['ArrowRight'] || this.controls.keys['d']) && 
+            !this.lastInputState.right) {
+            this.selectedOption = 1;
+            this.lastInputState.right = true;
+        } else if (!(this.controls.keys['ArrowRight'] || this.controls.keys['d'])) {
+            this.lastInputState.right = false;
+        }
+
+        if ((this.controls.keys['ArrowLeft'] || this.controls.keys['a']) && 
+            !this.lastInputState.left) {
+            this.selectedOption = 0;
+            this.lastInputState.left = true;
+        } else if (!(this.controls.keys['ArrowLeft'] || this.controls.keys['a'])) {
+            this.lastInputState.left = false;
+        }
+
+        if (this.controls.keys['Enter']) {
+            if (this.selectedOption === 0) {
+                // this.currentState = this.battleStates.RESOLVE_TURNS;
+                console.log("FIGHT selected");
+            } else {
+                // this.currentState = this.battleStates.RUN;
+                console.log("RUN selected");
+            }
+        }
+    }
+
     draw(ctx) {
-        ctx.clearRect(0, 0, 1920, 1200);
-        
-        ctx.drawImage(this.background, 0, 0, 1920, 1200);
-        
-        this.drawPokemon(ctx);
-        
-        this.drawHPBars(ctx);
-        
-        this.drawBattleText(ctx);
-        
-        if (this.currentState === this.battleStates.PLAYER_CHOICE) {
-            this.drawMenu(ctx);
+        // draw background
+        if (this.imagesLoaded.background) {
+            ctx.drawImage(this.background, 0, 0, 960, 640);
         }
-    }
 
-    drawPokemon(ctx) {
-        // enemy
-        if (this.enemyPokemon.spriteImageFront.complete) {
+        // draw enemy hp bar
+        if (this.imagesLoaded.enemyPokemonHpBar) {
             ctx.drawImage(
-                this.enemyPokemon.spriteImageFront,
-                this.enemyPosition.x,
-                this.enemyPosition.y,
-                300,
-                300
+                this.enemyPokemonHpBar,
+                56,
+                68,
+                400,
+                120
             );
         }
 
-        // plaeyr
-        if (this.playerPokemon.spriteImageBack.complete) {
+        // draw player hp bar
+        if (this.imagesLoaded.playerPokemonHpBar) {
             ctx.drawImage(
-                this.playerPokemon.spriteImageBack,
-                this.playerPosition.x,
-                this.playerPosition.y,
-                300,
-                300
+                this.playerPokemonHpBar,
+                500,
+                491,
+                416,
+                150
+            );
+        }
+
+        // draw textbox
+        if (this.imagesLoaded.textBox) {
+            ctx.drawImage(
+                this.textBox,
+                0,
+                641,
+                960,
+                204
+            );
+        }
+
+        // draw attack options
+        if (this.imagesLoaded.attackOptions) {
+            ctx.drawImage(
+                this.attackOptions,
+                450,
+                641,
+                510,
+                210
+            );
+        }
+        // draw arrpw
+        if (this.imagesLoaded.arrow) {
+            const position = this.arrowPositions[this.selectedOption];
+            ctx.drawImage(
+                this.arrow,
+                position.x,
+                position.y,
+                20,
+                32
             );
         }
     }
 
-    drawHPBars(ctx) {
-        // enemy
-        ctx.fillStyle = '#444';
-        ctx.fillRect(this.enemyPosition.x + 50, this.enemyPosition.y - 40, this.HPBarWidth, 20);
-        ctx.fillStyle = '#4CAF50';
-        ctx.fillRect(
-            this.enemyPosition.x + 50,
-            this.enemyPosition.y - 40,
-            (this.enemyPokemon.currentHP / this.enemyPokemon.health) * this.HPBarWidth,
-            20
-        );
-
-        // player
-        ctx.fillStyle = '#444';
-        ctx.fillRect(this.playerPosition.x - 200, this.playerPosition.y + 250, this.HPBarWidth, 20);
-        ctx.fillStyle = '#4CAF50';
-        ctx.fillRect(
-            this.playerPosition.x - 200,
-            this.playerPosition.y + 250,
-            (this.playerPokemon.currentHP / this.playerPokemon.health) * this.HPBarWidth,
-            20
-        );
+    enemyAttack() {
     }
 
-    drawBattleText(ctx) {
-        if (this.battleText.length > 0) {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-            ctx.fillRect(100, 800, 1720, 200);
-            
-            ctx.fillStyle = 'white';
-            ctx.font = '32px Arial';
-            this.battleText.forEach((text, index) => {
-                ctx.fillText(text, 150, 860 + (index * 40));
-            });
-        }
+    resolveTurn() {
     }
-
-    drawMenu(ctx) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        ctx.fillRect(1000, 800, 800, 200);
-        
-        this.menuOptions.forEach((option, index) => {
-            ctx.fillStyle = this.selectedOption === index ? '#FFD700' : 'white';
-            ctx.font = '32px Arial';
-            ctx.fillText(option, 1050 + (index % 2) * 400, 860 + Math.floor(index / 2) * 60);
-        });
-    }
-
 }

@@ -48,3 +48,9 @@ export class Pokemon {
         });
     }
 }
+
+async function getRandomPokemon() {
+    const response = await fetch(POKEMON_API_URL + Math.floor(Math.random() * (1025 - 1) + 1));
+    const data = await response.json();
+    return data;
+}

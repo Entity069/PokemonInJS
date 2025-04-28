@@ -11,11 +11,15 @@ const gameCtx = gameView.getContext("2d");
 const battleCtx = battleView.getContext("2d");
 
 let isBattleScene = false;
+let currentBattle = null;
 
 gameView.width = window.innerWidth;
 gameView.height = window.innerHeight;
+battleView.width = 960;
+battleView.height = 845;
 
 gameCtx.imageSmoothingEnabled = false;
+battleCtx.imageSmoothingEnabled = false;
 
 const worldMap = new WorldMap();
 const tileMap = new Image();
@@ -42,29 +46,34 @@ function endBattle() {
 }
 
 window.addEventListener('keydown', e => {
-    if (e.code === 'Space' && !isBattleScene) {
-  
-      startBattle();
-  
-      const playerMon = new Pokemon('pikachu');
-      playerMon.setSpriteImage('pikachu');
-      playerMon.setMoves('pikachu');
-      playerMon.setCry('pikachu');
-      playerMon.level = 50;
-      playerMon.maxHealth = 120;
-      playerMon.health = 120;
-  
-      const wildMon = new Pokemon('bulbasaur');
-      wildMon.setSpriteImage('bulbasaur');
-      wildMon.setMoves('bulbasaur');
-      wildMon.setCry('bulbasaur');
-      wildMon.level = 45;
-      wildMon.maxHealth = 110;
-      wildMon.health = 110;
-  
-      new Battle(playerMon, wildMon);
+    if (e.code === 'Escape' && isBattleScene) {
+        endBattle();
     }
-  });
+});
+
+window.addEventListener('keydown', e => {
+    if (e.code === 'Space' && !isBattleScene) {
+        startBattle();
+  
+        const playerMon = new Pokemon('pikachu');
+        playerMon.setSpriteImage('pikachu');
+        playerMon.setMoves('pikachu');
+        playerMon.setCry('pikachu');
+        playerMon.level = 50;
+        playerMon.maxHealth = 120;
+        playerMon.health = 120;
+  
+        const wildMon = new Pokemon('bulbasaur');
+        wildMon.setSpriteImage('bulbasaur');
+        wildMon.setMoves('bulbasaur');
+        wildMon.setCry('bulbasaur');
+        wildMon.level = 45;
+        wildMon.maxHealth = 110;
+        wildMon.health = 110;
+        
+        currentBattle = new Battle(playerMon, wildMon);
+    }
+});
 
 // game loop
 function gameLoop() {
@@ -85,12 +94,20 @@ function gameLoop() {
         player.draw(gameCtx, camera);
     }
     else {
-        startBattle();
+        battleCtx.clearRect(0, 0, battleView.width, battleView.height);
+        
+        if (currentBattle) {
+            currentBattle.update(); 
+        }
+        
+        currentBattle.draw(battleCtx);
     }
     requestAnimationFrame(gameLoop);
 }
 
 window.addEventListener('load', () => {
+    battleView.style.display = "none";
+    
     if (tileMap.complete) {
         gameLoop();
     } else {
