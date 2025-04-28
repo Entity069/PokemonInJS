@@ -2,7 +2,7 @@ import { WorldMap } from "./map.js";
 import { PlayerObject } from "./player.js";
 import { Camera } from "./camera.js";
 import { CollisionSystem } from "./collision.js";
-import { Pokemon, getRandomPokemon } from "./pokemon.js";
+import { Pokemon, getRandomPokemon, setDetails } from "./pokemon.js";
 import { Battle } from "./battle.js";
 
 const gameView = document.getElementById("gameCanvas");
@@ -58,18 +58,16 @@ window.addEventListener('keydown', async e => {
 
         const playerName = await getRandomPokemon();
         const playerMon = new Pokemon(playerName);
-        playerMon.setSpriteImage();
-        playerMon.setMoves();
-        playerMon.setCry();
+        await playerMon.setDetails();
         playerMon.level = 50;
         playerMon.maxHealth = 120;
         playerMon.health = 120;
+
+        console.log(playerMon.moves);
   
         const wildName   = await getRandomPokemon();
         const wildMon = new Pokemon(wildName);
-        wildMon.setSpriteImage();
-        wildMon.setMoves();
-        wildMon.setCry();
+        await wildMon.setDetails();
         wildMon.level = 45;
         wildMon.maxHealth = 110;
         wildMon.health = 110;

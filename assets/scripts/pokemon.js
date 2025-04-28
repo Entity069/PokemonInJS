@@ -11,46 +11,38 @@ export class Pokemon {
         this.level = 0;
 
     }
-
-    async setSpriteImage() {
-        fetch(POKEMON_API_URL + this.name)
+    // 1 request is better than 3
+    async setDetails() {
+        return fetch(POKEMON_API_URL + this.name)
         .then(response => response.json())
         .then(data => {
             this.spriteImageFront.src = data.sprites.front_default;
             this.spriteImageBack.src = data.sprites.back_default;
+            // console.log(data.sprites.front_default);
+            // console.log(data.sprites.back_default);
+
+            if (data.sprites.front_default === null) {
+                this.spriteImageFront.src = "./assets/textures/fallback_front.png";
+            }
+
+            if (data.sprites.back_default === null) {
+                this.spriteImageBack.src = "./assets/textures/fallback_back.png";
+            }
+            this.cry.src = data.cries.latest;
+            this.moves = data.moves.slice(0, 4);
+            // console.log(`Moves for ${this.name}:`, this.moves);
         })
         .catch(error => {
-            console.error('error sprite:', error);
+            console.error('error set:', error);
+            return this;
         });
         
-    }
-
-    async setCry() {
-        fetch(POKEMON_API_URL + this.name)
-        .then(response => response.json())
-        .then(data => {
-            this.cry.src = data.cries.latest;
-        })
-        .catch(error => {
-            console.error('error cry:', error);
-        });
-    }
-
-    async setMoves() {
-        fetch(POKEMON_API_URL + this.name)
-        .then(response => response.json())
-        .then(data => {
-            this.moves = data.moves;
-        })
-        .catch(error => {
-            console.error('error cry:', error);
-        });
     }
 }
 
 export async function getRandomPokemon() {
     const response = await fetch(POKEMON_API_URL + Math.floor(Math.random() * (1025 - 1) + 1));
     const data = await response.json();
-    console.log(data.name)
+    // console.log(data.name)
     return data.name;
 }

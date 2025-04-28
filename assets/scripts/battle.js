@@ -2,7 +2,9 @@ import { Pokemon } from "./pokemon.js";
 import { Controls } from "./controls.js";
 
 export class Battle {
-    constructor(playerPokemon, enemyPokemon) {
+    constructor(playerPokemon, enemyPokemon, ctx) {
+        this.ctx = ctx;
+
         this.background = new Image();
         this.background.src = "./assets/textures/battle-background-grass.png";
 
@@ -41,8 +43,8 @@ export class Battle {
         this.battleText = [];
         this.isAnimating = false;
 
-        this.enemyPosition = { x: 700, y: 180 };
-        this.playerPosition = { x: 250, y: 480 };
+        this.enemyPosition = { x: 700, y: 280 };
+        this.playerPosition = { x: 250, y: 580 };
 
         this.arrowPositions = [
             { x: 510, y: 732 },
@@ -152,7 +154,7 @@ export class Battle {
 
     draw(ctx) {
         if (this.imagesLoaded.background) {
-            ctx.drawImage(this.background, 0, 0, 960, 640);
+            ctx.drawImage(this.background, 0, 0, (ctx.canvas.width+960)/2, 640);
         }
 
         // enemy pokemon sprite
@@ -239,6 +241,7 @@ export class Battle {
             
         }
 
+        // attack options fight or run
         if (this.imagesLoaded.attackOptions) {
             ctx.drawImage(
                 this.attackOptions,
