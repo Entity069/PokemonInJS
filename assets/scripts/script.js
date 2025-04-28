@@ -2,7 +2,7 @@ import { WorldMap } from "./map.js";
 import { PlayerObject } from "./player.js";
 import { Camera } from "./camera.js";
 import { CollisionSystem } from "./collision.js";
-import { Pokemon, getRandomPokemon, setDetails } from "./pokemon.js";
+import { Pokemon, getRandomPokemon } from "./pokemon.js";
 import { Battle } from "./battle.js";
 
 const gameView = document.getElementById("gameCanvas");
