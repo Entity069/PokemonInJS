@@ -2,6 +2,7 @@ const POKEMON_API_URL = 'https://pokeapi.co/api/v2/pokemon/';
 
 export class Pokemon {
     constructor(name) {
+        this.name = String(name);
         this.maxHealth = 100;
         this.spriteImageFront = new Image();
         this.spriteImageBack = new Image();
@@ -11,8 +12,8 @@ export class Pokemon {
 
     }
 
-    setSpriteImage(name) {
-        fetch(POKEMON_API_URL + name)
+    async setSpriteImage() {
+        fetch(POKEMON_API_URL + this.name)
         .then(response => response.json())
         .then(data => {
             this.spriteImageFront.src = data.sprites.front_default;
@@ -24,8 +25,8 @@ export class Pokemon {
         
     }
 
-    setCry(name) {
-        fetch(POKEMON_API_URL + name)
+    async setCry() {
+        fetch(POKEMON_API_URL + this.name)
         .then(response => response.json())
         .then(data => {
             this.cry.src = data.cries.latest;
@@ -33,12 +34,10 @@ export class Pokemon {
         .catch(error => {
             console.error('error cry:', error);
         });
-
-    
     }
 
-    setMoves(name) {
-        fetch(POKEMON_API_URL + name)
+    async setMoves() {
+        fetch(POKEMON_API_URL + this.name)
         .then(response => response.json())
         .then(data => {
             this.moves = data.moves;
@@ -49,8 +48,9 @@ export class Pokemon {
     }
 }
 
-async function getRandomPokemon() {
+export async function getRandomPokemon() {
     const response = await fetch(POKEMON_API_URL + Math.floor(Math.random() * (1025 - 1) + 1));
     const data = await response.json();
-    return data;
+    console.log(data.name)
+    return data.name;
 }

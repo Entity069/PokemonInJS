@@ -41,12 +41,12 @@ export class Battle {
         this.battleText = [];
         this.isAnimating = false;
 
-        this.enemyPosition = { x: 1000, y: 200 };
-        this.playerPosition = { x: 400, y: 600 };
+        this.enemyPosition = { x: 700, y: 180 };
+        this.playerPosition = { x: 250, y: 480 };
 
         this.arrowPositions = [
-            { x: 510, y: 732 }, // fight
-            { x: 752, y: 732 }  // run
+            { x: 510, y: 732 },
+            { x: 752, y: 732 }
         ];
 
         this.lastInputState = {
@@ -62,7 +62,9 @@ export class Battle {
             enemyPokemonHpBar: false,
             textBox: false,
             attackOptions: false,
-            arrow: false
+            arrow: false,
+            playerPokemonSprite: false,
+            enemyPokemonSprite: false
         };
 
         this.background.onload = () => { this.imagesLoaded.background = true; };
@@ -71,11 +73,24 @@ export class Battle {
         this.textBox.onload = () => { this.imagesLoaded.textBox = true; };
         this.attackOptions.onload = () => { this.imagesLoaded.attackOptions = true; };
         this.arrow.onload = () => { this.imagesLoaded.arrow = true; };
+        
+        this.playerPokemon.spriteImageBack.onload = () => { 
+            this.imagesLoaded.playerPokemonSprite = true; 
+        };
+        this.enemyPokemon.spriteImageFront.onload = () => { 
+            this.imagesLoaded.enemyPokemonSprite = true; 
+        };
     }
 
     initializePokemon() {
         this.playerPokemon.currentHP = this.playerPokemon.health;
         this.enemyPokemon.currentHP = this.enemyPokemon.health;
+        
+        setTimeout(() => {
+            if (this.enemyPokemon.cry.src) {
+                this.enemyPokemon.cry.play().catch(e => console.log("Audio play error:", e));
+            }
+        }, 1000);
     }
 
     update() {
@@ -83,8 +98,7 @@ export class Battle {
 
         switch(this.currentState) {
             case this.battleStates.INTRODUCTION:
-                this.battleText = [`A trainer wants to battle!`];
-                this.battleText.push(`${this.enemyPokemon.name} appeared!`);
+                this.battleText = [`A wild ${this.enemyPokemon.name} appeared!`];
                 this.battleText.push(`Go! ${this.playerPokemon.name}!`);
                 this.currentState = this.battleStates.PLAYER_CHOICE;
                 break;
@@ -137,12 +151,41 @@ export class Battle {
     }
 
     draw(ctx) {
-        // draw background
         if (this.imagesLoaded.background) {
             ctx.drawImage(this.background, 0, 0, 960, 640);
         }
 
-        // draw enemy hp bar
+        // enemy pokemon sprite
+        if (this.imagesLoaded.enemyPokemonSprite) {
+            const spriteScale = 3;
+            const spriteWidth = this.enemyPokemon.spriteImageFront.width * spriteScale;
+            const spriteHeight = this.enemyPokemon.spriteImageFront.height * spriteScale;
+            
+            ctx.drawImage(
+                this.enemyPokemon.spriteImageFront,
+                this.enemyPosition.x - spriteWidth / 2,
+                this.enemyPosition.y - spriteHeight / 2,
+                spriteWidth,
+                spriteHeight
+            );
+        }
+
+        // player pokemon sprite
+        if (this.imagesLoaded.playerPokemonSprite) {
+            const spriteScale = 3;
+            const spriteWidth = this.playerPokemon.spriteImageBack.width * spriteScale;
+            const spriteHeight = this.playerPokemon.spriteImageBack.height * spriteScale;
+            
+            ctx.drawImage(
+                this.playerPokemon.spriteImageBack,
+                this.playerPosition.x - spriteWidth / 2,
+                this.playerPosition.y - spriteHeight / 2,
+                spriteWidth,
+                spriteHeight
+            );
+        }
+
+        // enemy hp
         if (this.imagesLoaded.enemyPokemonHpBar) {
             ctx.drawImage(
                 this.enemyPokemonHpBar,
@@ -151,9 +194,19 @@ export class Battle {
                 400,
                 120
             );
+            
+            
+            // hp bar
+            if (this.enemyPokemon.currentHP !== undefined && this.enemyPokemon.maxHealth) {
+                const hpPercentage = this.enemyPokemon.currentHP / this.enemyPokemon.maxHealth;
+                const barWidth = 192 * hpPercentage;
+                
+                ctx.fillStyle = hpPercentage > 0.5 ? "green" : hpPercentage > 0.2 ? "orange" : "red";
+                ctx.fillRect(212, 140, barWidth, 10);
+            }
         }
 
-        // draw player hp bar
+        // player hp
         if (this.imagesLoaded.playerPokemonHpBar) {
             ctx.drawImage(
                 this.playerPokemonHpBar,
@@ -162,9 +215,19 @@ export class Battle {
                 416,
                 150
             );
+            
+            // hp bar
+            if (this.playerPokemon.currentHP !== undefined && this.playerPokemon.maxHealth) {
+                const hpPercentage = this.playerPokemon.currentHP / this.playerPokemon.maxHealth;
+                const barWidth = 192 * hpPercentage;
+                
+                ctx.fillStyle = hpPercentage > 0.5 ? "green" : hpPercentage > 0.2 ? "orange" : "red";
+                ctx.fillRect(700, 562, barWidth, 10);
+                
+            }
         }
 
-        // draw textbox
+        // textbox
         if (this.imagesLoaded.textBox) {
             ctx.drawImage(
                 this.textBox,
@@ -173,9 +236,9 @@ export class Battle {
                 960,
                 204
             );
+            
         }
 
-        // draw attack options
         if (this.imagesLoaded.attackOptions) {
             ctx.drawImage(
                 this.attackOptions,
@@ -184,8 +247,9 @@ export class Battle {
                 510,
                 210
             );
+            
         }
-        // draw arrpw
+
         if (this.imagesLoaded.arrow) {
             const position = this.arrowPositions[this.selectedOption];
             ctx.drawImage(
@@ -199,8 +263,12 @@ export class Battle {
     }
 
     enemyAttack() {
+        console.log("Enemy is attacking");
+        this.currentState = this.battleStates.RESOLVE_TURNS;
     }
 
     resolveTurn() {
+        console.log("Resolving turn");
+        this.currentState = this.battleStates.PLAYER_CHOICE;
     }
 }
