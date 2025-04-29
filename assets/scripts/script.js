@@ -63,9 +63,7 @@ window.addEventListener('keydown', async e => {
         playerMon.maxHealth = 120;
         playerMon.health = 120;
 
-        console.log(playerMon.moves);
-  
-        const wildName   = await getRandomPokemon();
+        const wildName = await getRandomPokemon();
         const wildMon = new Pokemon(wildName);
         await wildMon.setDetails();
         wildMon.level = 45;
@@ -74,7 +72,7 @@ window.addEventListener('keydown', async e => {
 
         console.log(`${playerMon.name} vs ${wildMon.name}`);
         
-        currentBattle = new Battle(playerMon, wildMon);
+        currentBattle = new Battle(playerMon, wildMon, battleCtx);
     }
 });
 
