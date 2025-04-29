@@ -11,7 +11,8 @@ export class Controls {
           'd': false,
           'Enter': false,
           'Escape': false,
-          'Space': false
+          'Space': false,
+          'Shift': false
       };
 
       document.addEventListener('keydown', (e) => {
