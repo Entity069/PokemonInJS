@@ -49,7 +49,14 @@ export class Battle {
         this.menuOptions = ['FIGHT', 'RUN'];
         this.selectedOption = 0; // 0 = FIGHT, 1 = RUN
         this.selectedMoveIndex = 0;
+
         this.battleText = [];
+        this.currentDisplayText = ["", ""];
+        this.typewriterIndex = 0;
+        this.typewriterSpeed = 2;
+        this.typewriterDelay = 0;
+        this.isTyping = false;
+
         this.currentBattleTextIndex = 0;
         this.isAnimating = false;
         this.animationTimer = 0;
@@ -160,15 +167,60 @@ export class Battle {
                 { name: "leer", power: 0, accuracy: 100 }
             ];
         }
+    }
+
+    startTypewriterEffect(text) {
+        this.battleText = Array.isArray(text) ? text : [text];
+        this.currentDisplayText = ["", ""];
+        this.typewriterIndex = 0;
+        this.currentBattleTextIndex = 0;
+        this.isTyping = true;
+    }
+
+    updateTypewriterEffect() {
+        if (!this.isTyping || this.currentBattleTextIndex >= this.battleText.length) {
+            return;
+        }
+
+        this.typewriterDelay++;
+        if (this.typewriterDelay < 2) {
+            return;
+        }
+        this.typewriterDelay = 0;
+
+        const currentText = this.battleText[this.currentBattleTextIndex];
         
-        setTimeout(() => {
-            if (this.enemyPokemon.cry.src) {
-                this.enemyPokemon.cry.play().catch(e => console.log("Audio play error:", e));
+        if (this.typewriterIndex < currentText.length) {
+            this.currentDisplayText[this.currentBattleTextIndex] += currentText[this.typewriterIndex];
+            this.typewriterIndex++;
+        } else {
+            if (this.controls.keys['Enter'] && !this.lastInputState.enter) {
+                this.lastInputState.enter = true;
+                this.currentBattleTextIndex++;
+                this.typewriterIndex = 0;
+                
+                if (this.currentBattleTextIndex < this.battleText.length) {
+                    this.currentDisplayText[this.currentBattleTextIndex] = "";
+                } else {
+                    this.isTyping = false;
+                    if (this.currentState === this.battleStates.INTRODUCTION) {
+                        this.currentState = this.battleStates.PLAYER_CHOICE;
+                    }
+                }
+            } else if (!this.controls.keys['Enter']) {
+                this.lastInputState.enter = false;
             }
-        }, 1000);
+        }
+    }
+
+    canProceedPastText() {
+        return !this.isTyping || (this.currentBattleTextIndex < this.battleText.length && 
+               this.typewriterIndex >= this.battleText[this.currentBattleTextIndex].length);
     }
 
     update() {
+        this.updateTypewriterEffect();
+
         if (this.isAnimating) {
             this.animationTimer++;
             
@@ -202,11 +254,16 @@ export class Battle {
             return;
         }
 
+        if (this.isTyping) {
+            return;
+        }
+
         switch(this.currentState) {
             case this.battleStates.INTRODUCTION:
-                this.battleText = [`A wild ${this.enemyPokemon.name.toUpperCase()} appeared!`];
-                this.battleText.push(`Go! ${this.playerPokemon.name.toUpperCase()}!`);
-                this.currentState = this.battleStates.PLAYER_CHOICE;
+                this.startTypewriterEffect([
+                    `A wild ${this.enemyPokemon.name.toUpperCase()} appeared!`,
+                    `Go! ${this.playerPokemon.name.toUpperCase()}!`
+                ]);
                 break;
 
             case this.battleStates.PLAYER_CHOICE:
@@ -236,6 +293,9 @@ export class Battle {
             case this.battleStates.VICTORY:
             case this.battleStates.DEFEAT:
             case this.battleStates.RUN:
+                if (this.controls.keys['Enter'] && !this.lastInputState.enter) {
+                    this.lastInputState.enter = true;
+                }
                 break;
         }
     }
@@ -265,7 +325,7 @@ export class Battle {
                 this.selectedMoveIndex = 0;
             } else { // RUN
                 this.currentState = this.battleStates.RUN;
-                this.battleText = ["Got away safely!"];
+                this.startTypewriterEffect("Got away safely!");
             }
         } else if (!this.controls.keys['Enter']) {
             this.lastInputState.enter = false;
@@ -336,7 +396,7 @@ export class Battle {
         const moveName = selectedMove.name.toUpperCase();
         const movePower = selectedMove.power;
         
-        this.battleText = [`${this.playerPokemon.name.toUpperCase()} used ${moveName}!`];
+        this.startTypewriterEffect(`${this.playerPokemon.name.toUpperCase()} used ${moveName}!`);
         
         if (movePower > 0) {
             const attackStat = this.playerPokemon.level * 2;
@@ -354,7 +414,10 @@ export class Battle {
             this.targetHP = Math.max(0, this.enemyPokemon.currentHP - damage);
             this.animationTimer = 0;
         } else {
-            this.battleText.push("But it had no effect!");
+            this.startTypewriterEffect([
+                `${this.playerPokemon.name.toUpperCase()} used ${moveName}!`,
+                "But it had no effect!"
+            ]);
             this.currentState = this.battleStates.ENEMY_CHOICE;
         }
     }
@@ -374,7 +437,7 @@ export class Battle {
         const moveName = this.enemySelectedMove.name.toUpperCase();
         const movePower = this.enemySelectedMove.power;
         
-        this.battleText = [`Enemy ${this.enemyPokemon.name.toUpperCase()} used ${moveName}!`];
+        this.startTypewriterEffect(`Enemy ${this.enemyPokemon.name.toUpperCase()} used ${moveName}!`);
         
         if (movePower > 0) {
             const attackStat = this.enemyPokemon.level * 2;
@@ -392,7 +455,10 @@ export class Battle {
             this.targetHP = Math.max(0, this.playerPokemon.currentHP - damage);
             this.animationTimer = 0;
         } else {
-            this.battleText.push("But it had no effect!");
+            this.startTypewriterEffect([
+                `Enemy ${this.enemyPokemon.name.toUpperCase()} used ${moveName}!`,
+                "But it had no effect!"
+            ]);
             this.currentState = this.battleStates.PLAYER_CHOICE;
         }
     }
@@ -400,10 +466,16 @@ export class Battle {
     checkBattleEnd() {
         if (this.playerPokemon.currentHP <= 0) {
             this.currentState = this.battleStates.DEFEAT;
-            this.battleText = [`${this.playerPokemon.name.toUpperCase()} fainted!`, "You lost the battle!"];
+            this.startTypewriterEffect([
+                `${this.playerPokemon.name.toUpperCase()} fainted!`, 
+                "You lost the battle!"
+            ]);
         } else if (this.enemyPokemon.currentHP <= 0) {
             this.currentState = this.battleStates.VICTORY;
-            this.battleText = [`Enemy ${this.enemyPokemon.name.toUpperCase()} fainted!`, "You won the battle!"];
+            this.startTypewriterEffect([
+                `Enemy ${this.enemyPokemon.name.toUpperCase()} fainted!`, 
+                "You won the battle!"
+            ]);
         } else {
             if (this.damagedPokemon === this.enemyPokemon) {
                 this.currentState = this.battleStates.ENEMY_CHOICE;
@@ -556,16 +628,21 @@ export class Battle {
                     204
                 );
                 
-                // battle text
+                // typewriter text
                 ctx.font = '24px Arial';
                 ctx.fillStyle = 'white';
                 
-                if (this.battleText.length > 0) {
-                    ctx.fillText(this.battleText[0], 50, 700);
+                if (this.currentDisplayText[0]) {
+                    ctx.fillText(this.currentDisplayText[0], 50, 700);
                     
-                    if (this.battleText.length > 1) {
-                        ctx.fillText(this.battleText[1], 50, 730);
+                    if (this.currentDisplayText[1]) {
+                        ctx.fillText(this.currentDisplayText[1], 50, 730);
                     }
+                }
+                
+                // blinking indicator when text is complete, will change to pixelated smoe time later
+                if (this.canProceedPastText() && Math.floor(Date.now() / 500) % 2 === 0) {
+                    ctx.fillText("▼", 900, 800);
                 }
             }
 
