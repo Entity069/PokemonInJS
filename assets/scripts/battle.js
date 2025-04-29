@@ -1,11 +1,12 @@
 import { Pokemon } from "./pokemon.js";
 import { Controls } from "./controls.js";
 
-const pokemonFont = new FontFace('Pokemon Fire Red', 'url("./assets/fonts/poke.ttf")');
+// const pokemonFont = new FontFace('Pokemon Fire Red', 'url("./assets/fonts/poke.ttf")');
 
 export class Battle {
-    constructor(playerPokemon, enemyPokemon, ctx) {
+    constructor(playerPokemon, enemyPokemon, ctx, audioManager) {
         this.ctx = ctx;
+        this.audioManager = audioManager;
 
         this.background = new Image();
         this.background.src = "./assets/textures/battle-background-grass.png";
@@ -27,6 +28,9 @@ export class Battle {
 
         this.arrow = new Image();
         this.arrow.src = "./assets/textures/menu-arrow.png";
+
+        this.fainted = new Image();
+        this.fainted.src = "./assets/textures/fainted.png";
 
         this.playerPokemon = playerPokemon;
         this.enemyPokemon = enemyPokemon;
@@ -95,7 +99,8 @@ export class Battle {
             moveSelectionBox: false,
             arrow: false,
             playerPokemonSprite: false,
-            enemyPokemonSprite: false
+            enemyPokemonSprite: false,
+            fainted: false
         };
 
         this.background.onload = () => { this.imagesLoaded.background = true; };
@@ -105,6 +110,7 @@ export class Battle {
         this.attackOptions.onload = () => { this.imagesLoaded.attackOptions = true; };
         this.moveSelectionBox.onload = () => { this.imagesLoaded.moveSelectionBox = true; };
         this.arrow.onload = () => { this.imagesLoaded.arrow = true; };
+        this.fainted.onload = () => { this.imagesLoaded.fainted = true; };
         
         this.playerPokemon.spriteImageBack.onload = () => { 
             this.imagesLoaded.playerPokemonSprite = true; 
@@ -112,6 +118,11 @@ export class Battle {
         this.enemyPokemon.spriteImageFront.onload = () => { 
             this.imagesLoaded.enemyPokemonSprite = true; 
         };
+        
+        // battle music when battle is created
+        if (this.audioManager) {
+            this.audioManager.playTrack('battle');
+        }
     }
 
     setupMoves() {
@@ -470,12 +481,17 @@ export class Battle {
                 `${this.playerPokemon.name.toUpperCase()} fainted!`, 
                 "You lost the battle!"
             ]);
+            // no music change for defeat
         } else if (this.enemyPokemon.currentHP <= 0) {
             this.currentState = this.battleStates.VICTORY;
             this.startTypewriterEffect([
                 `Enemy ${this.enemyPokemon.name.toUpperCase()} fainted!`, 
                 "You won the battle!"
             ]);
+            // victory
+            if (this.audioManager) {
+                this.audioManager.playTrack('victory');
+            }
         } else {
             if (this.damagedPokemon === this.enemyPokemon) {
                 this.currentState = this.battleStates.ENEMY_CHOICE;
@@ -487,7 +503,7 @@ export class Battle {
 
     draw(ctx) {
         if (this.imagesLoaded.background) {
-            ctx.drawImage(this.background, 0, 0, (ctx.canvas.width+960)/2, 640);
+            ctx.drawImage(this.background, 0, 0, 960, 640);
         }
 
         if (this.imagesLoaded.enemyPokemonSprite) {
@@ -506,6 +522,17 @@ export class Battle {
                     spriteWidth,
                     spriteHeight
                 );
+                
+                // draw fainted icon over enemy Pokemon if it has fainted
+                if (this.imagesLoaded.fainted && this.enemyPokemon.currentHP <= 0) {
+                    ctx.drawImage(
+                        this.fainted,
+                        this.enemyPosition.x - 50,
+                        this.enemyPosition.y - 50,
+                        33 * 3,
+                        33 * 3
+                    );
+                }
             }
         }
 
@@ -525,6 +552,17 @@ export class Battle {
                     spriteWidth,
                     spriteHeight
                 );
+                
+                // draw fainted icon over player Pokemon if it has fainted
+                if (this.imagesLoaded.fainted && this.playerPokemon.currentHP <= 0) {
+                    ctx.drawImage(
+                        this.fainted,
+                        this.playerPosition.x - 50,
+                        this.playerPosition.y - 50,
+                        33 * 3,
+                        33 * 3
+                    );
+                }
             }
         }
 
@@ -633,10 +671,10 @@ export class Battle {
                 ctx.fillStyle = 'white';
                 
                 if (this.currentDisplayText[0]) {
-                    ctx.fillText(this.currentDisplayText[0], 50, 700);
+                    ctx.fillText(this.currentDisplayText[0], 50, 700, 400);
                     
                     if (this.currentDisplayText[1]) {
-                        ctx.fillText(this.currentDisplayText[1], 50, 730);
+                        ctx.fillText(this.currentDisplayText[1], 50, 730, 400 );
                     }
                 }
                 
@@ -668,6 +706,10 @@ export class Battle {
                     );
                 }
             }
+        }
+        // audio volume control
+        if (this.audioManager) {
+            this.audioManager.drawUI(ctx);
         }
     }
 }

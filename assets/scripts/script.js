@@ -5,6 +5,7 @@ import { CollisionSystem } from "./collision.js";
 import { Pokemon, getRandomPokemon } from "./pokemon.js";
 import { Battle } from "./battle.js";
 import { Encounter } from "./encounter.js";
+import { AudioManager } from "./audioManager.js";
 
 const gameView = document.getElementById("gameCanvas");
 const battleView = document.getElementById("battleCanvas");
@@ -22,6 +23,8 @@ battleView.height = 845;
 gameCtx.imageSmoothingEnabled = false;
 battleCtx.imageSmoothingEnabled = false;
 
+const audioManager = new AudioManager();
+
 const worldMap = new WorldMap();
 const tileMap = new Image();
 tileMap.src = worldMap.src;
@@ -33,7 +36,7 @@ const player = new PlayerObject(startX, startY, 2, worldMap.tileset_scaled_size 
 
 const camera = new Camera(0, 0, gameView.width, gameView.height);
 const collisionSystem = new CollisionSystem(worldMap);
-const encounter = new Encounter(worldMap, player);
+const encounter = new Encounter(worldMap, player, audioManager);
 
 function fadeTransition(callback) {
     const fadeOverlay = document.createElement('div');
@@ -85,6 +88,8 @@ function endBattle() {
         gameView.style.display = "block";
         battleView.style.display = "none";
         currentBattle = null;
+        
+        audioManager.playTrack('overworld');
     });
 }
 
@@ -105,8 +110,8 @@ window.addEventListener('keydown', async e => {
             const playerMon = new Pokemon(playerName);
             await playerMon.setDetails();
             playerMon.level = 50;
-            playerMon.maxHealth = 120;
-            playerMon.currentHP = 120;
+            playerMon.maxHealth = 20;
+            playerMon.currentHP = 20;
 
             const wildName = await getRandomPokemon();
             const wildMon = new Pokemon(wildName);
@@ -117,7 +122,7 @@ window.addEventListener('keydown', async e => {
 
             console.log(`${playerMon.name} vs ${wildMon.name}`);
             
-            currentBattle = new Battle(playerMon, wildMon, battleCtx);
+            currentBattle = new Battle(playerMon, wildMon, battleCtx, audioManager);
         });
     }
 });
@@ -186,6 +191,8 @@ async function gameLoop() {
         worldMap.draw(tileMap, gameCtx, camera);
         player.draw(gameCtx, camera);
         
+        audioManager.drawUI(gameCtx);
+        
         if (debugMode) {
             encounterPoints();
         }
@@ -213,9 +220,11 @@ window.addEventListener('load', () => {
     document.head.appendChild(style);
     
     if (tileMap.complete) {
+        audioManager.playTrack('overworld');
         gameLoop();
     } else {
         tileMap.onload = () => {
+            audioManager.playTrack('overworld');
             gameLoop();
         };
     }

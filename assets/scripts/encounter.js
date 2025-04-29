@@ -3,9 +3,10 @@ import { Pokemon, getRandomPokemon } from "./pokemon.js";
 import { Battle } from "./battle.js";
 
 export class Encounter {
-    constructor(worldMap, player) {
+    constructor(worldMap, player, audioManager) {
         this.worldMap = worldMap;
         this.player = player;
+        this.audioManager = audioManager;
         this.constants = new Constants();
         this.movableTiles = this.constants.movable_tiles;
         
@@ -188,7 +189,7 @@ export class Encounter {
 
                 console.log(`Battle started: ${playerMon.name} vs ${wildMon.name}`);
                 
-                const battle = new Battle(playerMon, wildMon, battleCtx);
+                const battle = new Battle(playerMon, wildMon, battleCtx, this.audioManager);
                 resolve(battle);
             });
         });
