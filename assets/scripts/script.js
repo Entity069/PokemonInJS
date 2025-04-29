@@ -2,7 +2,7 @@ import { WorldMap } from "./map.js";
 import { PlayerObject } from "./player.js";
 import { Camera } from "./camera.js";
 import { CollisionSystem } from "./collision.js";
-import { Pokemon, getRandomPokemon } from "./pokemon.js";
+import { Pokemon, getRandomPokemon, PokemonSelector } from "./pokemon.js";
 import { Battle } from "./battle.js";
 import { Encounter } from "./encounter.js";
 import { AudioManager } from "./audioManager.js";
@@ -34,9 +34,11 @@ const startY = worldMap.map_rows * worldMap.tileset_scaled_size / 3;
 
 const player = new PlayerObject(startX, startY, 2, worldMap.tileset_scaled_size / 2);
 
+const pokemonSelector = new PokemonSelector(player, audioManager);
+
 const camera = new Camera(0, 0, gameView.width, gameView.height);
 const collisionSystem = new CollisionSystem(worldMap);
-const encounter = new Encounter(worldMap, player, audioManager);
+const encounter = new Encounter(worldMap, player, audioManager, pokemonSelector);
 
 function fadeTransition(callback) {
     const fadeOverlay = document.createElement('div');
@@ -106,12 +108,20 @@ window.addEventListener('keydown', async e => {
         fadeTransition(async () => {
             startBattle();
 
-            const playerName = await getRandomPokemon();
-            const playerMon = new Pokemon(playerName);
-            await playerMon.setDetails();
-            playerMon.level = 50;
-            playerMon.maxHealth = 20;
-            playerMon.currentHP = 20;
+            let playerMon;
+            const selectedPokemon = pokemonSelector.getSelectedPokemon();
+            
+            if (selectedPokemon) {
+                playerMon = selectedPokemon;
+                playerMon.currentHP = playerMon.maxHealth;
+            } else {
+                const playerName = await getRandomPokemon();
+                playerMon = new Pokemon(playerName);
+                await playerMon.setDetails();
+                playerMon.level = 50;
+                playerMon.maxHealth = 20;
+                playerMon.currentHP = 20;
+            }
 
             const wildName = await getRandomPokemon();
             const wildMon = new Pokemon(wildName);
@@ -164,6 +174,16 @@ window.addEventListener('keydown', e => {
     }
 });
 
+window.addEventListener('keydown', e => {
+    if (e.code === 'Space' && isBattleScene && currentBattle) {
+        if (currentBattle.currentState === currentBattle.battleStates.VICTORY || 
+            currentBattle.currentState === currentBattle.battleStates.DEFEAT || 
+            currentBattle.currentState === currentBattle.battleStates.RUN) {
+            endBattle();
+        }
+    }
+});
+
 // game loop
 async function gameLoop() {
     if (!isBattleScene) {
@@ -201,8 +221,12 @@ async function gameLoop() {
         battleCtx.clearRect(0, 0, battleView.width, battleView.height);
         
         if (currentBattle) {
-            currentBattle.update();
+            const shouldEndBattle = currentBattle.update();
             currentBattle.draw(battleCtx);
+            
+            if (shouldEndBattle) {
+                endBattle();
+            }
         }
     }
     requestAnimationFrame(gameLoop);

@@ -479,14 +479,16 @@ export class Battle {
             this.currentState = this.battleStates.DEFEAT;
             this.startTypewriterEffect([
                 `${this.playerPokemon.name.toUpperCase()} fainted!`, 
-                "You lost the battle!"
+                "You lost the battle!",
+                "Press Space to Continue"
             ]);
             // no music change for defeat
         } else if (this.enemyPokemon.currentHP <= 0) {
             this.currentState = this.battleStates.VICTORY;
             this.startTypewriterEffect([
                 `Enemy ${this.enemyPokemon.name.toUpperCase()} fainted!`, 
-                "You won the battle!"
+                "You won the battle!",
+                "Press Space to Continue"
             ]);
             // victory
             if (this.audioManager) {
@@ -500,7 +502,6 @@ export class Battle {
             }
         }
     }
-
     draw(ctx) {
         if (this.imagesLoaded.background) {
             ctx.drawImage(this.background, 0, 0, 960, 640);

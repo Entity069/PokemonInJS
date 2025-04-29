@@ -3,10 +3,11 @@ import { Pokemon, getRandomPokemon } from "./pokemon.js";
 import { Battle } from "./battle.js";
 
 export class Encounter {
-    constructor(worldMap, player, audioManager) {
+    constructor(worldMap, player, audioManager, pokemonSelector) {
         this.worldMap = worldMap;
         this.player = player;
         this.audioManager = audioManager;
+        this.pokemonSelector = pokemonSelector;
         this.constants = new Constants();
         this.movableTiles = this.constants.movable_tiles;
         
@@ -111,6 +112,62 @@ export class Encounter {
         }
         
         return false;
+    }
+    
+    async startBattleTransition(gameView, battleView, gameCtx, battleCtx) {
+        return new Promise(resolve => {
+            const fadeOverlay = document.createElement('div');
+            fadeOverlay.id = 'encounterFadeOverlay';
+            fadeOverlay.style.position = 'absolute';
+            fadeOverlay.style.top = '0';
+            fadeOverlay.style.left = '0';
+            fadeOverlay.style.width = '100%';
+            fadeOverlay.style.height = '100%';
+            fadeOverlay.style.backgroundColor = 'black';
+            fadeOverlay.style.opacity = '0';
+            fadeOverlay.style.zIndex = '1000';
+            fadeOverlay.style.transition = 'opacity 0.5s ease-in-out';
+            document.body.appendChild(fadeOverlay);
+            
+            setTimeout(() => {
+                fadeOverlay.style.opacity = '1';
+                this.audioManager.playTrack('battle');
+                setTimeout(async () => {
+                    gameView.style.display = 'none';
+                    battleView.style.display = 'block';
+                    
+                    let playerMon;
+                    if (this.pokemonSelector && this.pokemonSelector.getSelectedPokemon()) {
+                        playerMon = this.pokemonSelector.getSelectedPokemon();
+                        playerMon.currentHP = playerMon.maxHealth;
+                    } else {
+                        const playerName = await getRandomPokemon();
+                        playerMon = new Pokemon(playerName);
+                        await playerMon.setDetails();
+                        playerMon.level = 50;
+                        playerMon.maxHealth = 100;
+                        playerMon.currentHP = 100;
+                    }
+                    
+                    const wildName = await getRandomPokemon();
+                    const wildMon = new Pokemon(wildName);
+                    await wildMon.setDetails();
+                    wildMon.level = Math.floor(Math.random() * 10) + 40; // Level 40-49
+                    wildMon.maxHealth = Math.floor(Math.random() * 50) + 80; // HP 80-129
+                    wildMon.currentHP = wildMon.maxHealth;
+                    
+                    console.log(`Wild encounter: ${playerMon.name} vs ${wildMon.name}`);
+                    
+                    const battle = new Battle(playerMon, wildMon, battleCtx, this.audioManager);
+                    fadeOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(fadeOverlay);
+                        this.isFading = false;
+                        resolve(battle);
+                    }, 500);
+                }, 1000);
+            }, 10);
+        });
     }
     
     performFadeEffect(gameView, callback) {

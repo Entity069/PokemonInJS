@@ -23,7 +23,7 @@ export class CollisionSystem {
                 }
 
                 const mapIndex = y * this.worldMap.map_cols + x;
-                console.log(`Checking tile at index: ${mapIndex}, value: ${this.worldMap.map[mapIndex]}`);
+                // console.log(`Checking tile at index: ${mapIndex}, value: ${this.worldMap.map[mapIndex]}`);
                 const tileValue = this.worldMap.map[mapIndex];
                 
                 if (this.worldMap.colliding_objects.includes(tileValue)) {
