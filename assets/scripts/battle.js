@@ -1,12 +1,22 @@
 import { Pokemon } from "./pokemon.js";
 import { Controls } from "./controls.js";
 
-// const pokemonFont = new FontFace('Pokemon Fire Red', 'url("./assets/fonts/poke.ttf")');
+const pokemonFont = new FontFace('Pokemon Fire Red', 'url(./assets/fonts/poke.woff)');
+    pokemonFont.load().then((font) => {
+    document.fonts.add(font);
+    console.log('Font loaded');
+}).catch((error) => {
+    console.error('Error loading font:', error);
+});
+
 
 export class Battle {
     constructor(playerPokemon, enemyPokemon, ctx, audioManager) {
         this.ctx = ctx;
         this.audioManager = audioManager;
+
+        this.masterBackground = new Image();
+        this.masterBackground.src = "./assets/textures/background.png";
 
         this.background = new Image();
         this.background.src = "./assets/textures/battle-background-grass.png";
@@ -28,6 +38,9 @@ export class Battle {
 
         this.arrow = new Image();
         this.arrow.src = "./assets/textures/menu-arrow.png";
+
+        this.redArrow = new Image();
+        this.redArrow.src = "./assets/textures/red-arrow.png";
 
         this.fainted = new Image();
         this.fainted.src = "./assets/textures/fainted.png";
@@ -91,6 +104,7 @@ export class Battle {
         this.initializePokemon();
 
         this.imagesLoaded = {
+            masterBackground: false,
             background: false,
             playerPokemonHpBar: false,
             enemyPokemonHpBar: false,
@@ -98,11 +112,13 @@ export class Battle {
             attackOptions: false,
             moveSelectionBox: false,
             arrow: false,
+            redArrow: false,
             playerPokemonSprite: false,
             enemyPokemonSprite: false,
             fainted: false
         };
 
+        this.masterBackground.onload = () => { this.imagesLoaded.masterBackground = true; };
         this.background.onload = () => { this.imagesLoaded.background = true; };
         this.playerPokemonHpBar.onload = () => { this.imagesLoaded.playerPokemonHpBar = true; };
         this.enemyPokemonHpBar.onload = () => { this.imagesLoaded.enemyPokemonHpBar = true; };
@@ -110,6 +126,7 @@ export class Battle {
         this.attackOptions.onload = () => { this.imagesLoaded.attackOptions = true; };
         this.moveSelectionBox.onload = () => { this.imagesLoaded.moveSelectionBox = true; };
         this.arrow.onload = () => { this.imagesLoaded.arrow = true; };
+        this.redArrow.onload = () => { this.imagesLoaded.redArrow = true; };
         this.fainted.onload = () => { this.imagesLoaded.fainted = true; };
         
         this.playerPokemon.spriteImageBack.onload = () => { 
@@ -182,7 +199,8 @@ export class Battle {
 
     startTypewriterEffect(text) {
         this.battleText = Array.isArray(text) ? text : [text];
-        this.currentDisplayText = ["", ""];
+        console.log(this.battleText);
+        this.currentDisplayText = ["", "", ""];
         this.typewriterIndex = 0;
         this.currentBattleTextIndex = 0;
         this.isTyping = true;
@@ -503,8 +521,17 @@ export class Battle {
         }
     }
     draw(ctx) {
+
+        const height = ctx.canvas.height;
+        const width = height * 1.5; // scrren has a ratio of 3:2 == 1.5
+        console.log(`Canvas size: ${ctx.canvas.width} x ${ctx.canvas.height}`);
+        const xOffset = (ctx.canvas.width - width) / 2;
+        const yOffset = (ctx.canvas.height - height) / 2;
+
+        
+
         if (this.imagesLoaded.background) {
-            ctx.drawImage(this.background, 0, 0, 960, 640);
+            ctx.drawImage(this.background, xOffset, yOffset, 960, 640);
         }
 
         if (this.imagesLoaded.enemyPokemonSprite) {
@@ -518,8 +545,8 @@ export class Battle {
             if (!shouldHideForDamage) {
                 ctx.drawImage(
                     this.enemyPokemon.spriteImageFront,
-                    this.enemyPosition.x - spriteWidth / 2,
-                    this.enemyPosition.y - spriteHeight / 2,
+                    this.enemyPosition.x - spriteWidth / 2 + xOffset,
+                    this.enemyPosition.y - spriteHeight / 2 + yOffset,
                     spriteWidth,
                     spriteHeight
                 );
@@ -528,8 +555,8 @@ export class Battle {
                 if (this.imagesLoaded.fainted && this.enemyPokemon.currentHP <= 0) {
                     ctx.drawImage(
                         this.fainted,
-                        this.enemyPosition.x - 50,
-                        this.enemyPosition.y - 50,
+                        this.enemyPosition.x - 50 + xOffset,
+                        this.enemyPosition.y - 50 + yOffset,
                         33 * 3,
                         33 * 3
                     );
@@ -548,8 +575,8 @@ export class Battle {
             if (!shouldHideForDamage) {
                 ctx.drawImage(
                     this.playerPokemon.spriteImageBack,
-                    this.playerPosition.x - spriteWidth / 2,
-                    this.playerPosition.y - spriteHeight / 2,
+                    this.playerPosition.x - spriteWidth / 2 + xOffset,
+                    this.playerPosition.y - spriteHeight / 2 + yOffset,
                     spriteWidth,
                     spriteHeight
                 );
@@ -558,8 +585,8 @@ export class Battle {
                 if (this.imagesLoaded.fainted && this.playerPokemon.currentHP <= 0) {
                     ctx.drawImage(
                         this.fainted,
-                        this.playerPosition.x - 50,
-                        this.playerPosition.y - 50,
+                        this.playerPosition.x - 50 + xOffset,
+                        this.playerPosition.y - 50 + yOffset,
                         33 * 3,
                         33 * 3
                     );
@@ -571,46 +598,46 @@ export class Battle {
         if (this.imagesLoaded.enemyPokemonHpBar) {
             ctx.drawImage(
                 this.enemyPokemonHpBar,
-                56,
-                68,
+                56 + xOffset,
+                68 + yOffset,
                 400,
                 120
             );
             
             // enemy name
-            ctx.font = '24px Arial';
-            ctx.fillStyle = 'black';
-            ctx.fillText(this.enemyPokemon.name.toUpperCase(), 90, 110);
             
+            ctx.font = '1.5rem pokemonFont';
+            ctx.fillStyle = 'black';
+            ctx.fillText(this.enemyPokemon.name.toUpperCase(), 90 + xOffset, 110 + yOffset);
             // hp bar
             if (this.enemyPokemon.currentHP !== undefined && this.enemyPokemon.maxHealth) {
                 const hpPercentage = Math.max(0, this.enemyPokemon.currentHP) / this.enemyPokemon.maxHealth;
                 const barWidth = 192 * hpPercentage;
                 
                 ctx.fillStyle = hpPercentage > 0.5 ? "green" : hpPercentage > 0.2 ? "orange" : "red";
-                ctx.fillRect(212, 140, barWidth, 10);
+                ctx.fillRect(212 + xOffset, 140 + yOffset, barWidth, 10);
             }
         }
 
         if (this.imagesLoaded.playerPokemonHpBar) {
             ctx.drawImage(
                 this.playerPokemonHpBar,
-                500,
-                491,
+                500 + xOffset,
+                491 + yOffset,
                 416,
                 150
             );
             
-            ctx.font = '24px Arial';
+            ctx.font = '24px pokemonFont';
             ctx.fillStyle = 'black';
-            ctx.fillText(this.playerPokemon.name.toUpperCase(), 570, 528);
+            ctx.fillText(this.playerPokemon.name.toUpperCase(), 570 + xOffset, 528 + yOffset);
             
             if (this.playerPokemon.currentHP !== undefined && this.playerPokemon.maxHealth) {
                 const hpPercentage = Math.max(0, this.playerPokemon.currentHP) / this.playerPokemon.maxHealth;
                 const barWidth = 192 * hpPercentage;
                 
                 ctx.fillStyle = hpPercentage > 0.5 ? "green" : hpPercentage > 0.2 ? "orange" : "red";
-                ctx.fillRect(700, 562, barWidth, 10);
+                ctx.fillRect(700 + xOffset, 562, barWidth, 10);
             }
         }
 
@@ -619,13 +646,13 @@ export class Battle {
             if (this.imagesLoaded.moveSelectionBox) {
                 ctx.drawImage(
                     this.moveSelectionBox,
-                    0,
-                    641,
+                    xOffset,
+                    641 + yOffset,
                     960,
                     204
                 );
                 
-                ctx.font = '24px Arial';
+                ctx.font = '24px pokemonFont';
                 ctx.fillStyle = 'black';
                 
                 const moves = this.playerPokemon.formattedMoves;
@@ -642,15 +669,15 @@ export class Battle {
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(' ');
                         
-                    ctx.fillText(moveName, movePositions[i].x, movePositions[i].y);
+                    ctx.fillText(moveName, movePositions[i].x + xOffset, movePositions[i].y + yOffset);
                 }
                 
                 if (this.imagesLoaded.arrow) {
                     const position = this.moveArrowPositions[this.selectedMoveIndex];
                     ctx.drawImage(
                         this.arrow,
-                        position.x,
-                        position.y,
+                        position.x + xOffset,
+                        position.y + yOffset,
                         20,
                         32
                     );
@@ -661,27 +688,33 @@ export class Battle {
             if (this.imagesLoaded.textBox) {
                 ctx.drawImage(
                     this.textBox,
-                    0,
-                    641,
+                    xOffset,
+                    641 + yOffset,
                     960,
                     204
                 );
                 
                 // typewriter text
-                ctx.font = '24px Arial';
+                ctx.font = '24px pokemonFont';
                 ctx.fillStyle = 'white';
                 
                 if (this.currentDisplayText[0]) {
-                    ctx.fillText(this.currentDisplayText[0], 50, 700, 400);
+                    ctx.fillText(this.currentDisplayText[0], 50 + xOffset, 700 + yOffset, 400);
                     
                     if (this.currentDisplayText[1]) {
-                        ctx.fillText(this.currentDisplayText[1], 50, 730, 400 );
+                        ctx.fillText(this.currentDisplayText[1], 50 + xOffset, 730 + yOffset, 400);
                     }
                 }
                 
-                // blinking indicator when text is complete, will change to pixelated smoe time later
                 if (this.canProceedPastText() && Math.floor(Date.now() / 500) % 2 === 0) {
-                    ctx.fillText("▼", 900, 800);
+                    ctx.drawImage(
+                        this.redArrow,
+                        890 + xOffset,
+                        790 + yOffset,
+                        30,
+                        18
+                    );
+                    // ctx.fillText("▼", 900 + xOffset, 800 + yOffset);
                 }
             }
 
@@ -689,8 +722,8 @@ export class Battle {
                 if (this.imagesLoaded.attackOptions) {
                     ctx.drawImage(
                         this.attackOptions,
-                        450,
-                        641,
+                        450 + xOffset,
+                        641 + yOffset,
                         510,
                         210
                     );
@@ -700,8 +733,8 @@ export class Battle {
                     const position = this.arrowPositions[this.selectedOption];
                     ctx.drawImage(
                         this.arrow,
-                        position.x,
-                        position.y,
+                        position.x + xOffset,
+                        position.y + yOffset,
                         20,
                         32
                     );

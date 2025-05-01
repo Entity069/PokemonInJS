@@ -11,17 +11,27 @@ const gameView = document.getElementById("gameCanvas");
 const battleView = document.getElementById("battleCanvas");
 const gameCtx = gameView.getContext("2d");
 const battleCtx = battleView.getContext("2d");
+gameCtx.translate(0.5, 0.5);
 
-let isBattleScene = false;
+window.isBattleScene = false;
 let currentBattle = null;
 
 gameView.width = window.innerWidth;
 gameView.height = window.innerHeight;
-battleView.width = 960;
-battleView.height = 845;
-
+battleView.width = window.innerWidth;
+battleView.height = window.innerHeight;
+console.log(`Game canvas size: ${gameView.width}x${gameView.height}`);
+console.log(`Battle canvas size: ${battleView.width}x${battleView.height}`);
 gameCtx.imageSmoothingEnabled = false;
 battleCtx.imageSmoothingEnabled = false;
+
+const fontFace = new FontFace('Pokemon Fire Red', 'url(./assets/fonts/poke.woff)');
+document.fonts.add(fontFace);
+fontFace.load().then(() => {
+    console.log('Pokemon Fire Red font loaded successfully');
+}).catch(err => {
+    console.error('Error loading Pokemon Fire Red font:', err);
+});
 
 const audioManager = new AudioManager();
 
@@ -79,14 +89,14 @@ function fadeTransition(callback) {
 }
 
 function startBattle() {
-    isBattleScene = true;
+    window.isBattleScene = true;
     gameView.style.display = "none";
     battleView.style.display = "block";
 }
 
 function endBattle() {
     fadeTransition(() => {
-        isBattleScene = false;
+        window.isBattleScene = false;
         gameView.style.display = "block";
         battleView.style.display = "none";
         currentBattle = null;
@@ -97,14 +107,14 @@ function endBattle() {
 
 // for debug
 window.addEventListener('keydown', e => {
-    if (e.code === 'Escape' && isBattleScene) {
+    if (e.code === 'Escape' && window.isBattleScene) {
         endBattle();
     }
 });
 
 //for debug
 window.addEventListener('keydown', async e => {
-    if (e.code === 'Space' && !isBattleScene) {
+    if (e.code === 'Space' && !window.isBattleScene) {
         fadeTransition(async () => {
             startBattle();
 
@@ -175,7 +185,7 @@ window.addEventListener('keydown', e => {
 });
 
 window.addEventListener('keydown', e => {
-    if (e.code === 'Space' && isBattleScene && currentBattle) {
+    if (e.code === 'Space' && window.isBattleScene && currentBattle) {
         if (currentBattle.currentState === currentBattle.battleStates.VICTORY || 
             currentBattle.currentState === currentBattle.battleStates.DEFEAT || 
             currentBattle.currentState === currentBattle.battleStates.RUN) {
@@ -186,7 +196,7 @@ window.addEventListener('keydown', e => {
 
 // game loop
 async function gameLoop() {
-    if (!isBattleScene) {
+    if (!window.isBattleScene) {
         gameCtx.clearRect(0, 0, gameView.width, gameView.height);
         
         const previousX = player.x;
@@ -203,12 +213,13 @@ async function gameLoop() {
             const battleObject = await encounter.checkForEncounter(gameView, battleView, gameCtx, battleCtx);
             if (battleObject) {
                 currentBattle = battleObject;
-                isBattleScene = true;
+                window.isBattleScene = true;
             }
         }
         
         camera.update(player, worldMap);
         worldMap.draw(tileMap, gameCtx, camera);
+
         player.draw(gameCtx, camera);
         
         audioManager.drawUI(gameCtx);

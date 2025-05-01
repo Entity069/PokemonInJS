@@ -18,6 +18,7 @@ export class Pokemon {
             special_defense: 0,
             speed: 0
         };
+        this.setDetails();
     }
 
     async setDetails() {
@@ -100,7 +101,7 @@ export class PokemonSelector {
     
     setupKeyListener() {
         window.addEventListener('keydown', async (e) => {
-            if ((e.code === 'KeyX' || e.key === 'x' || e.key === 'X') && !this.isOpen) {
+            if ((e.code === 'KeyX' || e.key === 'x' || e.key === 'X') && !this.isOpen && !window.isBattleScene) {
                 this.openModal();
             }
         });
@@ -115,19 +116,20 @@ export class PokemonSelector {
         this.modalContainer.style.left = '50%';
         this.modalContainer.style.transform = 'translate(-50%, -50%)';
         this.modalContainer.style.backgroundColor = '#f8f8f8';
-        this.modalContainer.style.border = '4px solid #3c5aa6'; // Pokémon blue border
-        this.modalContainer.style.borderRadius = '10px';
-        this.modalContainer.style.padding = '20px';
+        this.modalContainer.style.border = '4px solid #3c5aa6'; 
+        this.modalContainer.style.borderRadius = '0.625rem';
+        this.modalContainer.style.padding = '1.25rem';
         this.modalContainer.style.zIndex = '1001';
-        this.modalContainer.style.width = '600px';
-        this.modalContainer.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
+        this.modalContainer.style.width = '37.5rem';
+        this.modalContainer.style.boxShadow = '0 0 1.25rem rgba(0, 0, 0, 0.5)';
         
         const title = document.createElement('h2');
         title.textContent = 'Select Your Pokémon';
         title.style.textAlign = 'center';
-        title.style.marginBottom = '20px';
+        title.style.marginBottom = '1.25rem';
         title.style.color = '#3c5aa6';
-        title.style.fontFamily = 'sans-serif';
+        title.style.fontFamily = '"Pokemon Fire Red", sans-serif';
+        title.style.fontSize = '2rem';
         this.modalContainer.appendChild(title);
         
         const gridContainer = document.createElement('div');
@@ -135,7 +137,7 @@ export class PokemonSelector {
         gridContainer.style.display = 'grid';
         gridContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
         gridContainer.style.gridTemplateRows = 'repeat(3, 1fr)';
-        gridContainer.style.gap = '10px';
+        gridContainer.style.gap = '0.625rem';
         this.modalContainer.appendChild(gridContainer);
         
         document.body.appendChild(this.modalContainer);
@@ -144,12 +146,16 @@ export class PokemonSelector {
     async fetchRandomPokemon() {
         this.pokemonList = [];
         
+        const gridContainer = this.modalContainer.querySelector('#pokemon-grid');
+        gridContainer.innerHTML = '';
+        
         const loadingIndicator = document.createElement('div');
         loadingIndicator.textContent = 'Loading Pokémon...';
         loadingIndicator.style.textAlign = 'center';
-        loadingIndicator.style.padding = '50px';
-        loadingIndicator.style.fontSize = '18px';
-        this.modalContainer.querySelector('#pokemon-grid').appendChild(loadingIndicator);
+        loadingIndicator.style.padding = '3.125rem';
+        loadingIndicator.style.fontSize = '1.5rem';
+        loadingIndicator.style.fontFamily = '"Pokemon Fire Red", sans-serif';
+        gridContainer.appendChild(loadingIndicator);
         
         try {
             const uniqueIds = new Set();
@@ -198,16 +204,16 @@ export class PokemonSelector {
             cell.style.flexDirection = 'column';
             cell.style.alignItems = 'center';
             cell.style.justifyContent = 'center';
-            cell.style.padding = '10px';
+            cell.style.padding = '0.625rem';
             cell.style.border = '2px solid #ffcb05';
-            cell.style.borderRadius = '5px';
+            cell.style.borderRadius = '0.3125rem';
             cell.style.cursor = 'pointer';
             cell.style.backgroundColor = '#fff';
             cell.style.transition = 'transform 0.2s, box-shadow 0.2s';
             
             cell.addEventListener('mouseover', () => {
                 cell.style.transform = 'scale(1.05)';
-                cell.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+                cell.style.boxShadow = '0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.2)';
                 cell.style.backgroundColor = '#f0f8ff';
             });
             
@@ -219,16 +225,17 @@ export class PokemonSelector {
             
             const sprite = document.createElement('img');
             sprite.src = pokemon.sprite;
-            sprite.style.width = '96px';
-            sprite.style.height = '96px';
+            sprite.style.width = '6rem';
+            sprite.style.height = '6rem';
             sprite.style.imageRendering = 'pixelated';
             
             const nameLabel = document.createElement('div');
             const capitalizedName = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
             nameLabel.textContent = capitalizedName;
-            nameLabel.style.marginTop = '10px';
-            nameLabel.style.fontFamily = 'sans-serif';
-            nameLabel.style.fontWeight = 'bold';
+            nameLabel.style.marginTop = '0.625rem';
+            nameLabel.style.fontFamily = '"Pokemon Fire Red", sans-serif';
+            nameLabel.style.fontWeight = 'light';
+            nameLabel.style.fontSize = '1.5rem';
             
             cell.appendChild(sprite);
             cell.appendChild(nameLabel);
@@ -274,11 +281,11 @@ export class PokemonSelector {
         const closeButton = document.createElement('button');
         closeButton.textContent = '×';
         closeButton.style.position = 'absolute';
-        closeButton.style.top = '10px';
-        closeButton.style.right = '10px';
+        closeButton.style.top = '0.625rem';
+        closeButton.style.right = '0.625rem';
         closeButton.style.border = 'none';
         closeButton.style.background = 'none';
-        closeButton.style.fontSize = '24px';
+        closeButton.style.fontSize = '1.5rem';
         closeButton.style.cursor = 'pointer';
         closeButton.style.color = '#3c5aa6';
         closeButton.addEventListener('click', () => this.closeModal());

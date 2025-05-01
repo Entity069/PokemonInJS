@@ -24,4 +24,6 @@ canvas {
 #battleCanvas {
   position: absolute;
   z-index: 1;
+  background-image: url('../textures/background.png');
+  background-size: cover
 }
