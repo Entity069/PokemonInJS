@@ -106,46 +106,46 @@ function endBattle() {
 }
 
 // for debug
-window.addEventListener('keydown', e => {
-    if (e.code === 'Escape' && window.isBattleScene) {
-        endBattle();
-    }
-});
+// window.addEventListener('keydown', e => {
+//     if (e.code === 'Escape' && window.isBattleScene) {
+//         endBattle();
+//     }
+// });
 
 //for debug
-window.addEventListener('keydown', async e => {
-    if (e.code === 'Space' && !window.isBattleScene) {
-        fadeTransition(async () => {
-            startBattle();
+// window.addEventListener('keydown', async e => {
+//     if (e.code === 'Space' && !window.isBattleScene) {
+//         fadeTransition(async () => {
+//             startBattle();
 
-            let playerMon;
-            const selectedPokemon = pokemonSelector.getSelectedPokemon();
+//             let playerMon;
+//             const selectedPokemon = pokemonSelector.getSelectedPokemon();
             
-            if (selectedPokemon) {
-                playerMon = selectedPokemon;
-                playerMon.currentHP = playerMon.maxHealth;
-            } else {
-                const playerName = await getRandomPokemon();
-                playerMon = new Pokemon(playerName);
-                await playerMon.setDetails();
-                playerMon.level = 50;
-                playerMon.maxHealth = 20;
-                playerMon.currentHP = 20;
-            }
+//             if (selectedPokemon) {
+//                 playerMon = selectedPokemon;
+//                 playerMon.currentHP = playerMon.maxHealth;
+//             } else {
+//                 const playerName = await getRandomPokemon();
+//                 playerMon = new Pokemon(playerName);
+//                 await playerMon.setDetails();
+//                 playerMon.level = 50;
+//                 playerMon.maxHealth = 20;
+//                 playerMon.currentHP = 20;
+//             }
 
-            const wildName = await getRandomPokemon();
-            const wildMon = new Pokemon(wildName);
-            await wildMon.setDetails();
-            wildMon.level = 45;
-            wildMon.maxHealth = 110;
-            wildMon.currentHP = 110;
+//             const wildName = await getRandomPokemon();
+//             const wildMon = new Pokemon(wildName);
+//             await wildMon.setDetails();
+//             wildMon.level = 45;
+//             wildMon.maxHealth = 110;
+//             wildMon.currentHP = 110;
 
-            // console.log(`${playerMon.name} vs ${wildMon.name}`);
+//             // console.log(`${playerMon.name} vs ${wildMon.name}`);
             
-            currentBattle = new Battle(playerMon, wildMon, battleCtx, audioManager);
-        });
-    }
-});
+//             currentBattle = new Battle(playerMon, wildMon, battleCtx, audioManager);
+//         });
+//     }
+// });
 
 // for debug
 function encounterPoints() {
@@ -177,12 +177,12 @@ function encounterPoints() {
 }
 
 let debugMode = false;
-window.addEventListener('keydown', e => {
-    if (e.code === 'KeyJ') {
-        debugMode = !debugMode;
-        // console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
-    }
-});
+// window.addEventListener('keydown', e => {
+//     if (e.code === 'KeyJ') {
+//         debugMode = !debugMode;
+//         // console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
+//     }
+// });
 
 window.addEventListener('keydown', e => {
     if (e.code === 'Space' && window.isBattleScene && currentBattle) {
