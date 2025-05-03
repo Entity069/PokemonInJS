@@ -11,8 +11,8 @@ export class Encounter {
         this.constants = new Constants();
         this.movableTiles = this.constants.movable_tiles;
         
-        this.encounterRate = 10;
-        this.encounterCounts = 20;
+        this.encounterRate = 8;
+        this.encounterCounts = 50;
         
         this.lastPlayerX = player.x;
         this.lastPlayerY = player.y;
@@ -56,7 +56,7 @@ export class Encounter {
                     points.push({
                         x: tileX * this.worldMap.tileset_scaled_size,
                         y: tileY * this.worldMap.tileset_scaled_size,
-                        radius: 20 // radius of detection
+                        radius: 15 // radius of detection
                     });
                 }
             }
@@ -71,12 +71,12 @@ export class Encounter {
                 points.push({
                     x: randX * this.worldMap.tileset_scaled_size,
                     y: randY * this.worldMap.tileset_scaled_size,
-                    radius: 20
+                    radius: 15
                 });
             }
         }
         
-        console.log(`Generated ${points.length} encounter points`);
+        // console.log(`Generated ${points.length} encounter points`);
         return points;
     }
     
@@ -156,7 +156,7 @@ export class Encounter {
                     wildMon.maxHealth = Math.floor(Math.random() * 50) + 80; // HP 80-129
                     wildMon.currentHP = wildMon.maxHealth;
                     
-                    console.log(`Wild encounter: ${playerMon.name} vs ${wildMon.name}`);
+                    // console.log(`Wild encounter: ${playerMon.name} vs ${wildMon.name}`);
                     
                     const battle = new Battle(playerMon, wildMon, battleCtx, this.audioManager);
                     fadeOverlay.style.opacity = '0';
@@ -244,7 +244,7 @@ export class Encounter {
                 wildMon.maxHealth = 110;
                 wildMon.currentHP = 110;
 
-                console.log(`Battle started: ${playerMon.name} vs ${wildMon.name}`);
+                // console.log(`Battle started: ${playerMon.name} vs ${wildMon.name}`);
                 
                 const battle = new Battle(playerMon, wildMon, battleCtx, this.audioManager);
                 resolve(battle);

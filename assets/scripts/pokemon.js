@@ -19,6 +19,20 @@ export class Pokemon {
             speed: 0
         };
         this.setDetails();
+
+        this.spritesLoaded = {
+            front: false,
+            back: false
+        };
+
+        this.spriteImageFront.onload = () => {
+            this.spritesLoaded.front = true;
+        };
+        this.spriteImageBack.onload = () => {
+            this.spritesLoaded.back = true;
+        };
+        
+        this.setDetails();
     }
 
     async setDetails() {
@@ -66,7 +80,7 @@ export class Pokemon {
                 };
             });
 
-            console.log(`Moves for ${this.name}:`, this.formattedMoves);
+            // console.log(`Moves for ${this.name}:`, this.formattedMoves);
         })
         .catch(error => {
             console.error('error set:', error);
@@ -256,7 +270,7 @@ export class PokemonSelector {
         this.selectedPokemon.maxHealth = 100;
         this.selectedPokemon.currentHP = 100;
         
-        console.log(`Selected Pokémon: ${this.selectedPokemon.name}`);
+        // console.log(`Selected Pokémon: ${this.selectedPokemon.name}`);
         
         this.closeModal();
     }

@@ -20,8 +20,8 @@ gameView.width = window.innerWidth;
 gameView.height = window.innerHeight;
 battleView.width = window.innerWidth;
 battleView.height = window.innerHeight;
-console.log(`Game canvas size: ${gameView.width}x${gameView.height}`);
-console.log(`Battle canvas size: ${battleView.width}x${battleView.height}`);
+// console.log(`Game canvas size: ${gameView.width}x${gameView.height}`);
+// console.log(`Battle canvas size: ${battleView.width}x${battleView.height}`);
 gameCtx.imageSmoothingEnabled = false;
 battleCtx.imageSmoothingEnabled = false;
 
@@ -140,7 +140,7 @@ window.addEventListener('keydown', async e => {
             wildMon.maxHealth = 110;
             wildMon.currentHP = 110;
 
-            console.log(`${playerMon.name} vs ${wildMon.name}`);
+            // console.log(`${playerMon.name} vs ${wildMon.name}`);
             
             currentBattle = new Battle(playerMon, wildMon, battleCtx, audioManager);
         });
@@ -180,7 +180,7 @@ let debugMode = false;
 window.addEventListener('keydown', e => {
     if (e.code === 'KeyJ') {
         debugMode = !debugMode;
-        console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
+        // console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
     }
 });
 

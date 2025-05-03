@@ -224,7 +224,7 @@ export class AudioManager {
             this.currentTrack.pause();
         }
         
-        console.log(`Music ${this.musicEnabled ? 'enabled' : 'disabled'}`);
+        // console.log(`Music ${this.musicEnabled ? 'enabled' : 'disabled'}`);
     }
     
     playTrack(trackName) {

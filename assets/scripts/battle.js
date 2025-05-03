@@ -1,10 +1,9 @@
-import { Pokemon } from "./pokemon.js";
 import { Controls } from "./controls.js";
 
 const pokemonFont = new FontFace('Pokemon Fire Red', 'url(./assets/fonts/poke.woff)');
     pokemonFont.load().then((font) => {
     document.fonts.add(font);
-    console.log('Font loaded');
+    // console.log('Font loaded');
 }).catch((error) => {
     console.error('Error loading font:', error);
 });
@@ -14,6 +13,10 @@ export class Battle {
     constructor(playerPokemon, enemyPokemon, ctx, audioManager) {
         this.ctx = ctx;
         this.audioManager = audioManager;
+
+        if (ctx) {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        }
 
         this.masterBackground = new Image();
         this.masterBackground.src = "./assets/textures/background.png";
@@ -129,13 +132,6 @@ export class Battle {
         this.redArrow.onload = () => { this.imagesLoaded.redArrow = true; };
         this.fainted.onload = () => { this.imagesLoaded.fainted = true; };
         
-        this.playerPokemon.spriteImageBack.onload = () => { 
-            this.imagesLoaded.playerPokemonSprite = true; 
-        };
-        this.enemyPokemon.spriteImageFront.onload = () => { 
-            this.imagesLoaded.enemyPokemonSprite = true; 
-        };
-        
         // battle music when battle is created
         if (this.audioManager) {
             this.audioManager.playTrack('battle');
@@ -199,8 +195,8 @@ export class Battle {
 
     startTypewriterEffect(text) {
         this.battleText = Array.isArray(text) ? text : [text];
-        console.log(this.battleText);
-        this.currentDisplayText = ["", "", ""];
+        // console.log(this.battleText);
+        this.currentDisplayText = new Array(this.battleText.length).fill("");
         this.typewriterIndex = 0;
         this.currentBattleTextIndex = 0;
         this.isTyping = true;
@@ -354,7 +350,7 @@ export class Battle {
                 this.selectedMoveIndex = 0;
             } else { // RUN
                 this.currentState = this.battleStates.RUN;
-                this.startTypewriterEffect("Got away safely!");
+                this.startTypewriterEffect("Got away safely! Press Space to Continue!");
             }
         } else if (!this.controls.keys['Enter']) {
             this.lastInputState.enter = false;
@@ -498,7 +494,7 @@ export class Battle {
             this.startTypewriterEffect([
                 `${this.playerPokemon.name.toUpperCase()} fainted!`, 
                 "You lost the battle!",
-                "Press Space to Continue"
+                "Press Space to Continue!",
             ]);
             // no music change for defeat
         } else if (this.enemyPokemon.currentHP <= 0) {
@@ -506,7 +502,7 @@ export class Battle {
             this.startTypewriterEffect([
                 `Enemy ${this.enemyPokemon.name.toUpperCase()} fainted!`, 
                 "You won the battle!",
-                "Press Space to Continue"
+                "Press Space to Continue!",
             ]);
             // victory
             if (this.audioManager) {
@@ -521,20 +517,20 @@ export class Battle {
         }
     }
     draw(ctx) {
+        // const height = ctx.canvas.height;
+        // const width = height * 1.5; // battle view has a ratio of 3:2 == 1.5
+        // console.log(`Canvas size: ${ctx.canvas.width} x ${ctx.canvas.height}`);
+        const xOffset = (ctx.canvas.width - 960) / 2;
+        const yOffset =  0; // (ctx.canvas.height - 640) / 2;
+        // console.log(`Offsets: ${xOffset}, ${yOffset}`);
 
-        const height = ctx.canvas.height;
-        const width = height * 1.5; // scrren has a ratio of 3:2 == 1.5
-        console.log(`Canvas size: ${ctx.canvas.width} x ${ctx.canvas.height}`);
-        const xOffset = (ctx.canvas.width - width) / 2;
-        const yOffset = (ctx.canvas.height - height) / 2;
-
-        
 
         if (this.imagesLoaded.background) {
             ctx.drawImage(this.background, xOffset, yOffset, 960, 640);
         }
 
-        if (this.imagesLoaded.enemyPokemonSprite) {
+        if (this.enemyPokemon.spritesLoaded.front) {
+            this.imagesLoaded.enemyPokemonSprite = true;
             const spriteScale = 3;
             const spriteWidth = this.enemyPokemon.spriteImageFront.width * spriteScale;
             const spriteHeight = this.enemyPokemon.spriteImageFront.height * spriteScale;
@@ -564,7 +560,8 @@ export class Battle {
             }
         }
 
-        if (this.imagesLoaded.playerPokemonSprite) {
+        if (this.playerPokemon.spritesLoaded.back) {
+            this.imagesLoaded.playerPokemonSprite = true;
             const spriteScale = 3;
             const spriteWidth = this.playerPokemon.spriteImageBack.width * spriteScale;
             const spriteHeight = this.playerPokemon.spriteImageBack.height * spriteScale;
@@ -657,10 +654,10 @@ export class Battle {
                 
                 const moves = this.playerPokemon.formattedMoves;
                 const movePositions = [
-                    { x: 180, y: 700 },
-                    { x: 560, y: 700 },
-                    { x: 180, y: 760 },
-                    { x: 560, y: 760 }
+                    { x: 170, y: 720 },
+                    { x: 550, y: 720 },
+                    { x: 170, y: 780 },
+                    { x: 550, y: 780 }
                 ];
                 
                 for (let i = 0; i < Math.min(4, moves.length); i++) {
@@ -703,6 +700,10 @@ export class Battle {
                     
                     if (this.currentDisplayText[1]) {
                         ctx.fillText(this.currentDisplayText[1], 50 + xOffset, 730 + yOffset, 400);
+
+                        if (this.currentDisplayText[2]) {
+                            ctx.fillText(this.currentDisplayText[2], 50 + xOffset, 760 + yOffset, 400);
+                        }
                     }
                 }
                 
