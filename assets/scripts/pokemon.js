@@ -115,7 +115,7 @@ export class PokemonSelector {
     
     setupKeyListener() {
         window.addEventListener('keydown', async (e) => {
-            if ((e.code === 'KeyX' || e.key === 'x' || e.key === 'X') && !this.isOpen && !window.isBattleScene) {
+            if ((e.code === 'KeyX' || e.key === 'x' || e.key === 'X') && !this.isOpen && !window.isBattleScene && (this.player.getCurrentTileValue() === 5066 || this.player.getCurrentTileValue() === 5067)) {
                 this.openModal();
             }
         });

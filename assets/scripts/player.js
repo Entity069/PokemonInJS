@@ -1,12 +1,13 @@
 import { Controls } from './controls.js';
 
 export class PlayerObject {
-  constructor(x = 0, y = 0, speed = 1.5, size = 16) {
+  constructor(x = 0, y = 0, speed = 1.5, size = 16, worldMap) {
     this.x = x;
     this.y = y;
     this.speed = speed;
     this.size = size;
     this.controls = new Controls();
+    this.worldMap = worldMap; // Store reference to the world map
     
     this.spriteImage = new Image();
     this.spriteImage.src = './assets/textures/player-2.png';
@@ -65,6 +66,19 @@ export class PlayerObject {
       this.currentFrame = 1;
       this.animationCounter = 0;
     }
+  }
+
+  getCurrentTileValue() {
+    const tileSize = this.worldMap.tileset_scaled_size;
+    const tileX = Math.floor(this.x / tileSize);
+    const tileY = Math.floor(this.y / tileSize);
+    
+    if (tileX < 0 || tileX >= this.worldMap.map_cols || tileY < 0 || tileY >= this.worldMap.map_rows) {
+      return null;
+    }
+    
+    const mapIndex = tileY * this.worldMap.map_cols + tileX;
+    return this.worldMap.map[mapIndex];
   }
 
   draw(ctx, camera) {

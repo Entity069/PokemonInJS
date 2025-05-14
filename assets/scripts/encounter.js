@@ -106,15 +106,16 @@ export class Encounter {
     
     async checkForEncounter(gameView, battleView, gameCtx, battleCtx) {
         if (!this.playerMoved()) return false;
+        if (!(this.pokemonSelector && this.pokemonSelector.getSelectedPokemon())) return false;
         if (this.isEncounter()) {
-            const battle = await this.startEncounter(gameView, battleView, gameCtx, battleCtx);
+            const battle = await this.startBattle(gameView, battleView, gameCtx, battleCtx);
             return battle;
         }
         
         return false;
     }
     
-    async startBattleTransition(gameView, battleView, gameCtx, battleCtx) {
+    async startBattle(gameView, battleView, battleCtx) {
         return new Promise(resolve => {
             const fadeOverlay = document.createElement('div');
             fadeOverlay.id = 'encounterFadeOverlay';
@@ -140,6 +141,7 @@ export class Encounter {
                     if (this.pokemonSelector && this.pokemonSelector.getSelectedPokemon()) {
                         playerMon = this.pokemonSelector.getSelectedPokemon();
                         playerMon.currentHP = playerMon.maxHealth;
+                        console.log(`Player's Pokemon: ${playerMon.name}`);
                     } else {
                         const playerName = await getRandomPokemon();
                         playerMon = new Pokemon(playerName);
@@ -148,6 +150,7 @@ export class Encounter {
                         playerMon.maxHealth = 100;
                         playerMon.currentHP = 100;
                     }
+                    console.log(`Player's Pokemon: ${playerMon.name}`);
                     
                     const wildName = await getRandomPokemon();
                     const wildMon = new Pokemon(wildName);
@@ -168,87 +171,5 @@ export class Encounter {
                 }, 1000);
             }, 10);
         });
-    }
-    
-    performFadeEffect(gameView, callback) {
-        this.isFading = true;
-        this.fadeDirection = 'in';
-        this.fadeOpacity = 0;
-        this.fadeStartTime = performance.now();
-        
-        const fadeOverlay = document.createElement('div');
-        fadeOverlay.id = 'fadeOverlay';
-        fadeOverlay.style.position = 'absolute';
-        fadeOverlay.style.top = '0';
-        fadeOverlay.style.left = '0';
-        fadeOverlay.style.width = '100%';
-        fadeOverlay.style.height = '100%';
-        fadeOverlay.style.backgroundColor = 'black';
-        fadeOverlay.style.opacity = '0';
-        fadeOverlay.style.zIndex = '1000';
-        fadeOverlay.style.pointerEvents = 'none';
-        document.body.appendChild(fadeOverlay);
-        
-        const animate = (timestamp) => {
-            if (!this.isFading) {
-                document.body.removeChild(fadeOverlay);
-                return;
-            }
-            
-            const elapsed = timestamp - this.fadeStartTime;
-            const progress = Math.min(elapsed / this.fadeDuration, 1);
-            
-            if (this.fadeDirection === 'in') {
-                this.fadeOpacity = progress;
-                fadeOverlay.style.opacity = this.fadeOpacity.toString();
-                
-                if (progress >= 1) {
-                    this.fadeDirection = 'out';
-                    this.fadeStartTime = performance.now();
-                    callback();
-                }
-            } else {
-                this.fadeOpacity = 1 - progress;
-                fadeOverlay.style.opacity = this.fadeOpacity.toString();
-                
-                if (progress >= 1) {
-                    this.isFading = false;
-                    document.body.removeChild(fadeOverlay);
-                    return;
-                }
-            }
-            
-            requestAnimationFrame(animate);
-        };
-        
-        requestAnimationFrame(animate);
-    }
-    
-    async startEncounter(gameView, battleView, gameCtx, battleCtx) {
-        return new Promise(async (resolve) => {
-            this.performFadeEffect(gameView, async () => {
-                gameView.style.display = "none";
-                battleView.style.display = "block";
-                
-                const playerPokemonName = await getRandomPokemon();
-                const playerMon = new Pokemon(playerPokemonName);
-                await playerMon.setDetails();
-                playerMon.level = 50;
-                playerMon.maxHealth = 120;
-                playerMon.currentHP = 120;
-
-                const wildPokemonName = await getRandomPokemon();
-                const wildMon = new Pokemon(wildPokemonName);
-                await wildMon.setDetails();
-                wildMon.level = 45;
-                wildMon.maxHealth = 110;
-                wildMon.currentHP = 110;
-
-                // console.log(`Battle started: ${playerMon.name} vs ${wildMon.name}`);
-                
-                const battle = new Battle(playerMon, wildMon, battleCtx, this.audioManager);
-                resolve(battle);
-            });
-        });
-    }
+    }   
 }
