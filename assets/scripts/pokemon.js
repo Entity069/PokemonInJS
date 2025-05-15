@@ -39,17 +39,14 @@ export class Pokemon {
         fetch(POKEMON_API_URL + this.name)
         .then(response => response.json())
         .then(data => {
-            // console.log("pokemon data", data);
 
             if (data.sprites.front_default === null) {
-                // console.log("front is nay!")
                 this.spriteImageFront.src = "./assets/textures/fallback_front.png";
             } else {
                 this.spriteImageFront.src = data.sprites.front_default;
             }
 
             if (data.sprites.back_default === null) {
-                // console.log("back is nay!")
                 this.spriteImageBack.src = "./assets/textures/fallback_back.png";
             } else {
                 this.spriteImageBack.src = data.sprites.back_default;
@@ -79,8 +76,6 @@ export class Pokemon {
                     type: 'normal'
                 };
             });
-
-            // console.log(`Moves for ${this.name}:`, this.formattedMoves);
         })
         .catch(error => {
             console.error('error set:', error);
@@ -270,7 +265,6 @@ export class PokemonSelector {
         this.selectedPokemon.maxHealth = 100;
         this.selectedPokemon.currentHP = 100;
         
-        // console.log(`Selected Pokémon: ${this.selectedPokemon.name}`);
         
         this.closeModal();
     }

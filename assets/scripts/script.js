@@ -20,18 +20,12 @@ gameView.width = window.innerWidth;
 gameView.height = window.innerHeight;
 battleView.width = window.innerWidth;
 battleView.height = window.innerHeight;
-// console.log(`Game canvas size: ${gameView.width}x${gameView.height}`);
-// console.log(`Battle canvas size: ${battleView.width}x${battleView.height}`);
+
 gameCtx.imageSmoothingEnabled = false;
 battleCtx.imageSmoothingEnabled = false;
 
 const fontFace = new FontFace('Pokemon Fire Red', 'url(./assets/fonts/poke.woff)');
 document.fonts.add(fontFace);
-fontFace.load().then(() => {
-    console.log('Pokemon Fire Red font loaded successfully');
-}).catch(err => {
-    console.error('Error loading Pokemon Fire Red font:', err);
-});
 
 const audioManager = new AudioManager();
 
@@ -42,13 +36,15 @@ tileMap.src = worldMap.src;
 const startX = worldMap.map_cols * worldMap.tileset_scaled_size / 3;
 const startY = worldMap.map_rows * worldMap.tileset_scaled_size / 3;
 
-const player = new PlayerObject(startX, startY, 2, worldMap.tileset_scaled_size / 2, worldMap);
+const player = new PlayerObject(startX, startY, 2, worldMap.tileset_scaled_size / 2, worldMap );
 
 const pokemonSelector = new PokemonSelector(player, audioManager);
 
 const camera = new Camera(0, 0, gameView.width, gameView.height);
 const collisionSystem = new CollisionSystem(worldMap);
 const encounter = new Encounter(worldMap, player, audioManager, pokemonSelector);
+
+audioManager.toggleInfoModal();
 
 function fadeTransition(callback) {
     const fadeOverlay = document.createElement('div');
@@ -106,83 +102,80 @@ function endBattle() {
 }
 
 // for debug
-window.addEventListener('keydown', e => {
-    if (e.code === 'Escape' && window.isBattleScene) {
-        endBattle();
-    }
-});
+// window.addEventListener('keydown', e => {
+//     if (e.code === 'Escape' && window.isBattleScene) {
+//         endBattle();
+//     }
+// });
 
 //for debug
-window.addEventListener('keydown', async e => {
-    if (e.code === 'Space' && !window.isBattleScene) {
-        fadeTransition(async () => {
-            startBattle();
+// window.addEventListener('keydown', async e => {
+//     if (e.code === 'Space' && !window.isBattleScene) {
+//         fadeTransition(async () => {
+//             startBattle();
 
-            let playerMon;
-            const selectedPokemon = pokemonSelector.getSelectedPokemon();
+//             let playerMon;
+//             const selectedPokemon = pokemonSelector.getSelectedPokemon();
             
-            if (selectedPokemon) {
-                playerMon = selectedPokemon;
-                playerMon.currentHP = playerMon.maxHealth;
-            } else {
-                const playerName = await getRandomPokemon();
-                playerMon = new Pokemon(playerName);
-                await playerMon.setDetails();
-                playerMon.level = 50;
-                playerMon.maxHealth = 20;
-                playerMon.currentHP = 20;
-            }
+//             if (selectedPokemon) {
+//                 playerMon = selectedPokemon;
+//                 playerMon.currentHP = playerMon.maxHealth;
+//             } else {
+//                 const playerName = await getRandomPokemon();
+//                 playerMon = new Pokemon(playerName);
+//                 await playerMon.setDetails();
+//                 playerMon.level = 50;
+//                 playerMon.maxHealth = 20;
+//                 playerMon.currentHP = 20;
+//             }
 
-            const wildName = await getRandomPokemon();
-            const wildMon = new Pokemon(wildName);
-            await wildMon.setDetails();
-            wildMon.level = 45;
-            wildMon.maxHealth = 110;
-            wildMon.currentHP = 110;
-
-            // console.log(`${playerMon.name} vs ${wildMon.name}`);
+//             const wildName = await getRandomPokemon();
+//             const wildMon = new Pokemon(wildName);
+//             await wildMon.setDetails();
+//             wildMon.level = 45;
+//             wildMon.maxHealth = 110;
+//             wildMon.currentHP = 110;
             
-            currentBattle = new Battle(playerMon, wildMon, battleCtx, audioManager);
-        });
-    }
-});
+//             currentBattle = new Battle(playerMon, wildMon, battleCtx, audioManager);
+//         });
+//     }
+// });
 
 // for debug
-function encounterPoints() {
-    if (!debugMode) return;
+// function encounterPoints() {
+//     if (!debugMode) return;
     
-    encounter.encounterPoints.forEach(point => {
-        gameCtx.beginPath();
-        gameCtx.arc(
-            point.x - camera.x,
-            point.y - camera.y,
-            10,
-            0,
-            Math.PI * 2
-        );
-        gameCtx.fillStyle = 'red';
-        gameCtx.fill();
+//     encounter.encounterPoints.forEach(point => {
+//         gameCtx.beginPath();
+//         gameCtx.arc(
+//             point.x - camera.x,
+//             point.y - camera.y,
+//             10,
+//             0,
+//             Math.PI * 2
+//         );
+//         gameCtx.fillStyle = 'red';
+//         gameCtx.fill();
         
-        gameCtx.beginPath();
-        gameCtx.arc(
-            point.x - camera.x,
-            point.y - camera.y,
-            point.radius,
-            0,
-            Math.PI * 2
-        );
-        gameCtx.strokeStyle = 'rgba(255, 0, 0, 0.2)';
-        gameCtx.stroke();
-    });
-}
+//         gameCtx.beginPath();
+//         gameCtx.arc(
+//             point.x - camera.x,
+//             point.y - camera.y,
+//             point.radius,
+//             0,
+//             Math.PI * 2
+//         );
+//         gameCtx.strokeStyle = 'rgba(255, 0, 0, 0.2)';
+//         gameCtx.stroke();
+//     });
+// }
 
-let debugMode = false;
-window.addEventListener('keydown', e => {
-    if (e.code === 'KeyJ') {
-        debugMode = !debugMode;
-        // console.log(`Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
-    }
-});
+// let debugMode = false;
+// window.addEventListener('keydown', e => {
+//     if (e.code === 'KeyJ') {
+//         debugMode = !debugMode;
+//     }
+// });
 
 window.addEventListener('keydown', e => {
     if (e.code === 'Space' && window.isBattleScene && currentBattle) {
@@ -224,9 +217,9 @@ async function gameLoop() {
         
         audioManager.drawUI(gameCtx);
         
-        if (debugMode) {
-            encounterPoints();
-        }
+        // if (debugMode) {
+        //     encounterPoints();
+        // }
     }
     else {
         battleCtx.clearRect(0, 0, battleView.width, battleView.height);

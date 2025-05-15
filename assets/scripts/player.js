@@ -7,7 +7,7 @@ export class PlayerObject {
     this.speed = speed;
     this.size = size;
     this.controls = new Controls();
-    this.worldMap = worldMap; // Store reference to the world map
+    this.worldMap = worldMap;
     
     this.spriteImage = new Image();
     this.spriteImage.src = './assets/textures/player-2.png';

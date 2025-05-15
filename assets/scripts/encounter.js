@@ -56,7 +56,7 @@ export class Encounter {
                     points.push({
                         x: tileX * this.worldMap.tileset_scaled_size,
                         y: tileY * this.worldMap.tileset_scaled_size,
-                        radius: 15 // radius of detection
+                        radius: 12 // radius of detection
                     });
                 }
             }
@@ -71,12 +71,11 @@ export class Encounter {
                 points.push({
                     x: randX * this.worldMap.tileset_scaled_size,
                     y: randY * this.worldMap.tileset_scaled_size,
-                    radius: 15
+                    radius: 12
                 });
             }
         }
         
-        // console.log(`Generated ${points.length} encounter points`);
         return points;
     }
     
@@ -141,7 +140,6 @@ export class Encounter {
                     if (this.pokemonSelector && this.pokemonSelector.getSelectedPokemon()) {
                         playerMon = this.pokemonSelector.getSelectedPokemon();
                         playerMon.currentHP = playerMon.maxHealth;
-                        console.log(`Player's Pokemon: ${playerMon.name}`);
                     } else {
                         const playerName = await getRandomPokemon();
                         playerMon = new Pokemon(playerName);
@@ -150,16 +148,14 @@ export class Encounter {
                         playerMon.maxHealth = 100;
                         playerMon.currentHP = 100;
                     }
-                    console.log(`Player's Pokemon: ${playerMon.name}`);
                     
                     const wildName = await getRandomPokemon();
                     const wildMon = new Pokemon(wildName);
                     await wildMon.setDetails();
-                    wildMon.level = Math.floor(Math.random() * 10) + 40; // Level 40-49
-                    wildMon.maxHealth = Math.floor(Math.random() * 50) + 80; // HP 80-129
+                    wildMon.level = Math.floor(Math.random() * 10) + 40;
+                    wildMon.maxHealth = Math.floor(Math.random() * 50) + 80;
                     wildMon.currentHP = wildMon.maxHealth;
                     
-                    // console.log(`Wild encounter: ${playerMon.name} vs ${wildMon.name}`);
                     
                     const battle = new Battle(playerMon, wildMon, battleCtx, this.audioManager);
                     fadeOverlay.style.opacity = '0';

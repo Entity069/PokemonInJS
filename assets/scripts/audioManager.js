@@ -104,7 +104,7 @@ export class AudioManager {
         
         const controls = [
             { key: 'W, A, S, D', description: 'Move the player character' },
-            { key: 'X', description: 'Open Pokémon selection menu' },
+            { key: 'X', description: 'Open Pokemon selection menu (near Pokemon Center)' },
             { key: 'M', description: 'Toggle game music' },
             { key: 'I', description: 'Toggle this info box' },
             { key: 'Space', description: 'End battle after victory/defeat' },
@@ -145,9 +145,9 @@ export class AudioManager {
         
         const gameInfoText = document.createElement('p');
         gameInfoText.innerHTML = `
-            Walk around the map to explore. When you walk through, 
-            you may encounter wild Pokémon. Use the Pokémon selection menu (X key) 
-            to choose your Pokémon before battling.
+            Go to the nearent Pokemon Center to choose your Pokemon.
+            After that you can start your adventure.
+            Wander in the open area to check for wild Pokemons
         `;
         gameInfoText.style.marginBottom = '1rem';
         
@@ -223,8 +223,6 @@ export class AudioManager {
         } else if (!this.musicEnabled && this.currentTrack) {
             this.currentTrack.pause();
         }
-        
-        // console.log(`Music ${this.musicEnabled ? 'enabled' : 'disabled'}`);
     }
     
     playTrack(trackName) {
@@ -234,12 +232,6 @@ export class AudioManager {
         }
         
         this.currentTrack = this.tracks[trackName];
-        
-        if (this.musicEnabled) {
-            this.currentTrack.play().catch(error => {
-                console.warn('audio :', error);
-            });
-        }
     }
     
     stopAll() {

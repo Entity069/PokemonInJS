@@ -3,7 +3,6 @@ import { Controls } from "./controls.js";
 const pokemonFont = new FontFace('Pokemon Fire Red', 'url(./assets/fonts/poke.woff)');
     pokemonFont.load().then((font) => {
     document.fonts.add(font);
-    // console.log('Font loaded');
 }).catch((error) => {
     console.error('Error loading font:', error);
 });
@@ -195,7 +194,6 @@ export class Battle {
 
     startTypewriterEffect(text) {
         this.battleText = Array.isArray(text) ? text : [text];
-        // console.log(this.battleText);
         this.currentDisplayText = new Array(this.battleText.length).fill("");
         this.typewriterIndex = 0;
         this.currentBattleTextIndex = 0;
@@ -519,10 +517,8 @@ export class Battle {
     draw(ctx) {
         // const height = ctx.canvas.height;
         // const width = height * 1.5; // battle view has a ratio of 3:2 == 1.5
-        // console.log(`Canvas size: ${ctx.canvas.width} x ${ctx.canvas.height}`);
         const xOffset = (ctx.canvas.width - 960) / 2;
         const yOffset =  0; // (ctx.canvas.height - 640) / 2;
-        // console.log(`Offsets: ${xOffset}, ${yOffset}`);
 
 
         if (this.imagesLoaded.background) {
